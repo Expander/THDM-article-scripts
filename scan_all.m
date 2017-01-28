@@ -195,9 +195,9 @@ MSstop  = 1.0 10^18;
 Xtstart = -3.5;
 Xtstop  = 3.5;
 
-(********** scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+(********** HSSUSY scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
-ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^18, steps_:60] :=
+ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
     Module[{res},
            res = {#, TB, Xt, Sequence @@ RunEFT[#, TB, Xt]}& /@ LogRange[start, stop, steps];
            Export["HSSUSY_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[Xt] <> ".dat", res, "Table"];
