@@ -281,7 +281,7 @@ RunSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ] :=
 steps = 60;
 
 MSstart = 500;
-MSstop  = 1.0 10^18;
+MSstop  = 1.0 10^16;
 Xtstart = -3.5;
 Xtstop  = 3.5;
 
