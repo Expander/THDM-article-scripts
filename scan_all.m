@@ -1,4 +1,5 @@
 Get["models/HSSUSY/HSSUSY_librarylink.m"];
+Get["addons/SplitMSSMTower/SplitMSSMTower_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -116,6 +117,71 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
            If[calcUncerts, uncerts, spectrum]
           ];
 
+RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
+                  ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0,
+                  QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+    Module[{handle, spectrum, uncerts = {}, Qi = Qin, Qm = Qmat},
+           If[Qi === 0, Qi = Mi];
+           If[Qm === 0, Qm = Mi];
+           handle = FSSplitMSSMTowerOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> Qpole,            (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> 0,             (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> QDR        (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   MSUSY   -> MS,
+                   M1Input -> Mi,
+                   M2Input -> Mi,
+                   M3Input -> Mi,
+                   MuInput -> Mi,
+                   mAInput -> MS,
+                   MEWSB   -> Mtpole,
+                   AtInput -> MS/TB + Xt MS,
+                   Qinput -> Qi,
+                   Qmatch -> Qm,
+                   TanBeta -> TB,
+                   LambdaLoopOrder -> 2,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaMt,
+                   (* DeltaEFT -> eft, *)
+                   (* DeltaYt -> yt, *)
+                   msq2 -> MS^2 IdentityMatrix[3],
+                   msu2 -> MS^2 IdentityMatrix[3],
+                   msd2 -> MS^2 IdentityMatrix[3],
+                   msl2 -> MS^2 IdentityMatrix[3],
+                   mse2 -> MS^2 IdentityMatrix[3]
+               }
+           ];
+           spectrum = FSSplitMSSMTowerCalculateSpectrum[handle];
+           If[calcUncerts,
+              uncerts = FSSplitMSSMTowerCalculateUncertainties[handle];
+             ];
+           FSSplitMSSMTowerCloseHandle[handle];
+           If[calcUncerts, uncerts, spectrum]
+          ];
+
 GetPar[spec_, par__] :=
     GetPar[spec, #]& /@ {par};
 
@@ -133,18 +199,11 @@ RunHSSUSYMh[args__] :=
              ]
           ];
 
-RunHSSUSYQDR[args__] :=
-    Module[{spec},
-           spec = RunHSSUSY[args];
+RunSplitMSSMTowerMh[args__] :=
+    Module[{spec = RunSplitMSSMTower[args]},
            If[spec === $Failed,
-              { invalid, invalid, invalid, invalid }
-              ,
-              {
-                  GetPar[spec, Pole[M[hh]]],
-                 -GetPar[spec, Yu[3,3]],   (* yt^SM(QDR)     *)
-                  GetPar[spec, \[Lambda]], (* lambda^SM(QDR) *)
-                  GetPar[spec, g3]         (* g3^SM(QDR)     *)
-              }
+              invalid,
+              GetPar[spec, Pole[M[hh]]]
              ]
           ];
 
@@ -158,12 +217,34 @@ RunHSSUSYUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
            If[uncerts === $Failed,
               { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
               {
+                  Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)),
+                  Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)),
                   Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)),
                   Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)),
                   Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)),
                   Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)),
+                  MhEFT,
+                  MhYt
+              }
+             ]
+          ];
+
+RunSplitMSSMTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
+                               ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0, QDR_:0] :=
+    Module[{uncerts, MhEFT},
+           uncerts = RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, True];
+           (* with extra terms ~ v^2/MS^2 *)
+           MhEFT = 0; (* GetPar[RunSplitMSSMTower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 1, 0], Pole[M[hh]]]; *)
+           MhYt  = 0; (* GetPar[RunSplitMSSMTower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 0, 1], Pole[M[hh]]]; *)
+           If[uncerts === $Failed,
+              { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
+              {
                   Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)),
                   Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)),
+                  Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)),
+                  Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)),
+                  Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)),
+                  Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)),
                   MhEFT,
                   MhYt
               }
@@ -182,8 +263,17 @@ RunEFT[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
            Mhyt1L = RunHSSUSYMh[MS, TB, Xt, 1, 0, MS];
            Mhyt2L = RunHSSUSYMh[MS, TB, Xt, 2, 0, MS];
            Mhyt3L = RunHSSUSYMh[MS, TB, Xt, 3, 0, MS];
-           MhEFT  = RunHSSUSYMh[MS, TB, Xt, 2, 0, MS];
            DMh = RunHSSUSYUncertainties[MS, TB, Xt, 2];
+           (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
+           {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
+          ];
+
+RunSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ] :=
+    Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
+           Mhyt1L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 1];
+           Mhyt2L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 2];
+           Mhyt3L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 3];
+           DMh = RunSplitMSSMTowerUncertainties[MS, TB, Xt, Mi, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
@@ -204,4 +294,16 @@ ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanHSSUSYMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}
+(* ScanHSSUSYMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50} *)
+
+(********** SplitMSSMTower scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+
+ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
+    Module[{res},
+           res = {#, TB, Xt, Sequence @@ RunSplitTower[#, TB, Xt, Mi]}& /@ LogRange[start, stop, steps];
+           Export["SplitMSSMTower_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[Xt] <>
+                  "_Mi-" <> ToString[Mi] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanSplitMSSMTowerMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50}
