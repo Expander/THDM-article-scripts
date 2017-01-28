@@ -165,7 +165,7 @@ RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
                    LambdaLoopOrder -> 2,
                    DeltaAlphaS -> sigmaAlphaS,
                    DeltaMTopPole -> sigmaMt,
-                   (* DeltaEFT -> eft, *)
+                   DeltaEFT -> eft,
                    (* DeltaYt -> yt, *)
                    msq2 -> MS^2 IdentityMatrix[3],
                    msu2 -> MS^2 IdentityMatrix[3],
@@ -234,7 +234,7 @@ RunSplitMSSMTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?Num
     Module[{uncerts, MhEFT},
            uncerts = RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, True];
            (* with extra terms ~ v^2/MS^2 *)
-           MhEFT = 0; (* GetPar[RunSplitMSSMTower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 1, 0], Pole[M[hh]]]; *)
+           MhEFT = GetPar[RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, False, 1, 0], Pole[M[hh]]];
            MhYt  = 0; (* GetPar[RunSplitMSSMTower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 0, 1], Pole[M[hh]]]; *)
            If[uncerts === $Failed,
               { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
