@@ -117,7 +117,7 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
            If[calcUncerts, uncerts, spectrum]
           ];
 
-RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
+RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ,
                   ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0,
                   QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
     Module[{handle, spectrum, uncerts = {}, Qi = Qin, Qm = Qmat},
@@ -154,7 +154,7 @@ RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
                    MSUSY   -> MS,
                    M1Input -> Mi,
                    M2Input -> Mi,
-                   M3Input -> Mi,
+                   M3Input -> M3,
                    MuInput -> Mi,
                    mAInput -> MS,
                    MEWSB   -> Mtpole,
@@ -229,13 +229,13 @@ RunHSSUSYUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
              ]
           ];
 
-RunSplitMSSMTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
+RunSplitMSSMTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ,
                                ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0, QDR_:0] :=
     Module[{uncerts, MhEFT},
-           uncerts = RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, True];
+           uncerts = RunSplitMSSMTower[MS, TB, Xt, Mi, M3, ytLoops, Qpole, Qin, Qmat, QDR, True];
            (* with extra terms ~ v^2/MS^2 *)
-           MhEFT = GetPar[RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, False, 1, 0], Pole[M[hh]]];
-           MhYt  = GetPar[RunSplitMSSMTower[MS, TB, Xt, Mi, ytLoops, Qpole, Qin, Qmat, QDR, False, 0, 1], Pole[M[hh]]];
+           MhEFT = GetPar[RunSplitMSSMTower[MS, TB, Xt, Mi, M3, ytLoops, Qpole, Qin, Qmat, QDR, False, 1, 0], Pole[M[hh]]];
+           MhYt  = GetPar[RunSplitMSSMTower[MS, TB, Xt, Mi, M3, ytLoops, Qpole, Qin, Qmat, QDR, False, 0, 1], Pole[M[hh]]];
            If[uncerts === $Failed,
               { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
               {
@@ -268,12 +268,12 @@ RunEFT[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
 
-RunSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ] :=
+RunSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ] :=
     Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
-           Mhyt1L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 1];
-           Mhyt2L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 2];
-           Mhyt3L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, 3];
-           DMh = RunSplitMSSMTowerUncertainties[MS, TB, Xt, Mi, 2];
+           Mhyt1L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, M3, 1];
+           Mhyt2L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, M3, 2];
+           Mhyt3L = RunSplitMSSMTowerMh[MS, TB, Xt, Mi, M3, 3];
+           DMh = RunSplitMSSMTowerUncertainties[MS, TB, Xt, Mi, M3, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
@@ -311,7 +311,7 @@ ScanHSSUSYXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
 
 ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
     Module[{res},
-           res = {#, TB, Xt, Sequence @@ RunSplitTower[#, TB, Xt, Mi]}& /@ LogRange[start, stop, steps];
+           res = {#, TB, Xt, Sequence @@ RunSplitTower[#, TB, Xt, Mi, Mi]}& /@ LogRange[start, stop, steps];
            Export["SplitMSSMTower_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[Xt] <>
                   "_Mi-" <> ToString[Mi] <> ".dat", res, "Table"];
            res
@@ -323,10 +323,10 @@ ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
 
 ScanSplitMSSMTowerXt[TB_, MS_, Mi_, start_:-4, stop_:4, steps_:60] :=
     Module[{res},
-           res = {MS, TB, N[#], Sequence @@ RunSplitTower[MS, TB, #, Mi]}& /@ LinearRange[start, stop, steps];
+           res = {MS, TB, N[#], Sequence @@ RunSplitTower[MS, TB, #, Mi, Mi]}& /@ LinearRange[start, stop, steps];
            Export["SplitMSSMTower_Xt_TB-" <> ToString[TB] <> "_MS-" <> ToString[MS] <>
                   "_Mi-" <> ToString[Mi] <> ".dat", res, "Table"];
            res
           ];
 
-(* ScanSplitMSSMTowerXt[10, 5000, 2000]; *)
+ScanSplitMSSMTowerXt[10, 5000, 2000];
