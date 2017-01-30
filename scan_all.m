@@ -1,6 +1,6 @@
 Get["models/HSSUSY/HSSUSY_librarylink.m"];
 Get["addons/SplitMSSMTower/SplitMSSMTower_librarylink.m"];
-Get["addons/SplitMSSM/SplitMSSM_librarylink.m"];
+Get["models/SplitMSSM/SplitMSSM_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -441,7 +441,7 @@ ScanSplitMSSMTowerXt[TB_, MS_, Mi_, start_:-4, stop_:4, steps_:60] :=
 
 ScanSplitMSSMMi[TB_, Xt_, MS_, M3fac_, start_:500, stop_:3000, steps_:60] :=
     Module[{res},
-           res = {MS, N[#], N[#], N[#] M3fac, TB, Xt, Sequence @@ RunSplitTower[MS, TB, Xt, N[#], N[#] M3fac]}& /@ LogRange[start, stop, steps];
+           res = {MS, N[#], N[#], N[#] M3fac, TB, Xt, Sequence @@ RunSplit[MS, TB, Xt, N[#], N[#] M3fac]}& /@ LogRange[start, stop, steps];
            Export["SplitMSSM_Mi_TB-" <> ToString[TB] <> "_Xt-" <> ToString[Xt] <>
                   "_MS-" <> ToString[MS] <> "_M3-MiX" <> ToString[M3fac] <> ".dat", res, "Table"];
            res
