@@ -296,6 +296,17 @@ ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
 
 (* ScanHSSUSYMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50} *)
 
+(********** HSSUSY scenario 2: TB = 2, MS = 2 TeV **********)
+
+ScanHSSUSYXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
+    Module[{res},
+           res = {MS, TB, N[#], Sequence @@ RunEFT[MS, TB, #]}& /@ LinearRange[start, stop, steps];
+           Export["HSSUSY_Xt_TB-" <> ToString[TB] <> "_MS-" <> ToString[MS] <> ".dat", res, "Table"];
+           res
+          ];
+
+(* ScanHSSUSYXt[20, 2000]; *)
+
 (********** SplitMSSMTower scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
 ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
@@ -306,4 +317,16 @@ ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanSplitMSSMTowerMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50}
+(* ScanSplitMSSMTowerMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50} *)
+
+(********** SplitMSSMTower scenario 2: TB = 10, MS = 5 TeV **********)
+
+ScanSplitMSSMTowerXt[TB_, MS_, Mi_, start_:-4, stop_:4, steps_:60] :=
+    Module[{res},
+           res = {MS, TB, N[#], Sequence @@ RunSplitTower[MS, TB, #, Mi]}& /@ LinearRange[start, stop, steps];
+           Export["SplitMSSMTower_Xt_TB-" <> ToString[TB] <> "_MS-" <> ToString[MS] <>
+                  "_Mi-" <> ToString[Mi] <> ".dat", res, "Table"];
+           res
+          ];
+
+(* ScanSplitMSSMTowerXt[10, 5000, 2000]; *)
