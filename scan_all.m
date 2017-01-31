@@ -527,7 +527,7 @@ ScanSplitMSSMMi[TB_, Xt_, MS_, M3fac_, start_:500, stop_:3000, steps_:60] :=
 HSSUSYDegVary[MS_, TB_, Xt_] :=
     Module[{data},
            data = RunHSSUSYDegMh[MS, TB, Xt, Sequence @@ #]& /@ Tuples[{MS/3, 3 MS}, 11];
-           {MS, TB, Xt, Sequence @ MinMax[data]}
+           {MS, TB, Xt, Sequence @@ MinMax[data]}
           ];
 
 ScanHSSUSYDeg[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
