@@ -537,4 +537,4 @@ ScanHSSUSYDeg[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50};
+(* ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}; *)
