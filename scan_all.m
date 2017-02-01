@@ -637,4 +637,4 @@ ScanSplitMSSMDeg[TB_, Xt_, Mlow_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanSplitMSSMDeg[#, N@Sqrt[6], 15000]& /@ {2, 10, 20, 50};
+ScanSplitMSSMDeg[#, N@Sqrt[6], 1500]& /@ {2, 10, 20, 50};
