@@ -310,6 +310,69 @@ RunSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Numeric
            If[calcUncerts, uncerts, spectrum]
           ];
 
+RunSplitMSSMDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
+                MQ_, MQ3_, MU_, MU3_, MD_, ML_, ME_, mA_] :=
+    Module[{handle, spectrum, Mu = Mi, M3 = Mi},
+           handle = FSSplitMSSMOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> 2,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> 0,                (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> 0,             (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> 0          (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   MSUSY   -> MS,
+                   M1Input -> Mi,
+                   M2Input -> Mi,
+                   M3Input -> M3,
+                   MuInput -> Mu,
+                   mAInput -> mA,
+                   MEWSB   -> Mtpole,
+                   AtInput -> Mu/TB + Xt Sqrt[MQ3 MU3],
+                   Qinput -> 0,
+                   Qmatch -> 0,
+                   TanBeta -> TB,
+                   LambdaLoopOrder -> 2,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaMt,
+                   DeltaEFT -> 0,
+                   DeltaYt -> 0,
+                   msq2 -> {{ MQ^2, 0   , 0    },
+                            { 0   , MQ^2, 0    },
+                            { 0   , 0   , MQ3^2 }},
+                   msu2 -> {{ MU^2, 0   , 0    },
+                            { 0   , MU^2, 0    },
+                            { 0   , 0   , MU3^2 }},
+                   msd2 -> MD^2 IdentityMatrix[3],
+                   msl2 -> ML^2 IdentityMatrix[3],
+                   mse2 -> ME^2 IdentityMatrix[3]
+               }
+           ];
+           spectrum = FSSplitMSSMCalculateSpectrum[handle];
+           FSSplitMSSMCloseHandle[handle];
+           spectrum
+          ];
+
 GetPar[spec_, par__] :=
     GetPar[spec, #]& /@ {par};
 
@@ -345,6 +408,14 @@ RunSplitMSSMTowerMh[args__] :=
 
 RunSplitMSSMMh[args__] :=
     Module[{spec = RunSplitMSSM[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]]]
+             ]
+          ];
+
+RunSplitMSSMDegMh[args__] :=
+    Module[{spec = RunSplitMSSMDeg[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]]]
@@ -522,7 +593,7 @@ ScanSplitMSSMMi[TB_, Xt_, MS_, M3fac_, start_:500, stop_:3000, steps_:60] :=
 (* ScanSplitMSSMMi[#, 0, 15000, 1]& /@ {2, 10, 20, 50} *)
 (* ScanSplitMSSMMi[#, 0, 15000, 2]& /@ {2, 10, 20, 50} *)
 
-(********** HSSUSY degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+(********** HSSUSY non-degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
 HSSUSYDegVary[MS_, TB_, Xt_] :=
     Module[{data},
@@ -538,3 +609,32 @@ ScanHSSUSYDeg[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
           ];
 
 (* ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}; *)
+
+(********** SplitMSSM non-degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+
+SplitMSSMDegVary[MS_, TB_, Xt_, Mlow_] :=
+    Module[{data, tuples},
+           tuples = Tuples[{
+               {Mlow/2, 2 Mlow}, (* Mi = M3 = Mu *)
+               {MS/3, 3 MS}, (* MQ *)
+               {MS/3, 3 MS}, (* MQ3 *)
+               {MS/3, 3 MS}, (* MU *)
+               {MS/3, 3 MS}, (* MU3 *)
+               {MS/3, 3 MS}, (* MD *)
+               {MS/3, 3 MS}, (* ML *)
+               {MS/3, 3 MS}, (* ME *)
+               {MS/3, 3 MS}  (* mA *)
+           }];
+           data = RunSplitMSSMDegMh[MS, TB, Xt, Sequence @@ #]& /@ tuples;
+           {MS, TB, Xt, Sequence @@ MinMax[data]}
+          ];
+
+ScanSplitMSSMDeg[TB_, Xt_, Mlow_, start_:500, stop_:1.0 10^16, steps_:60] :=
+    Module[{res},
+           res = SplitMSSMDegVary[#, TB, Xt, Mlow]& /@ LogRange[start, stop, steps];
+           Export["SplitMSSM_degenerate_MS_TB-" <> ToString[TB] <> "_Xt-" <>
+                  ToString[Xt] <> "_Mlow-" <> ToString[Mlow] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanSplitMSSMDeg[#, N@Sqrt[6], 15000]& /@ {2, 10, 20, 50};
