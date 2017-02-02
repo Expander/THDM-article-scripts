@@ -1,6 +1,7 @@
 Get["models/HSSUSY/HSSUSY_librarylink.m"];
 Get["addons/SplitMSSMTower/SplitMSSMTower_librarylink.m"];
 Get["models/SplitMSSM/SplitMSSM_librarylink.m"];
+Get["models/THDMIIMSSMBCFull/THDMIIMSSMBCFull_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -373,6 +374,71 @@ RunSplitMSSMDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
            spectrum
           ];
 
+RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                    ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+    Module[{handle, spectrum, uncerts = {}},
+           handle = FSTHDMIIMSSMBCFullOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> Qpole,            (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> 0,             (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 1,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> QDR        (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   TanBeta -> TB,
+                   MSUSY -> MS,
+                   MEWSB -> Mtpole,
+                   MuInput -> MS,
+                   M1Input -> MS,
+                   M2Input -> MS,
+                   MAInput -> MA,
+                   LambdaLoopOrder -> 2,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaAlphaS,
+                   (* DeltaEFT -> eft, *)
+                   (* DeltaYt -> yt, *)
+                   AeInput -> MS TB IdentityMatrix[3],
+                   AdInput -> MS TB IdentityMatrix[3],
+                   AuInput -> {
+                       {MS/TB, 0    , 0            },
+                       {0    , MS/TB, 0            },
+                       {0    , 0    , MS/TB + Xt MS}
+                   },
+                   msqInput -> MS {1,1,1},
+                   msuInput -> MS {1,1,1},
+                   msdInput -> MS {1,1,1},
+                   mslInput -> MS {1,1,1},
+                   mseInput -> MS {1,1,1}
+               }
+           ];
+           spectrum = FSTHDMIIMSSMBCFullCalculateSpectrum[handle];
+           If[calcUncerts,
+              uncerts = FSTHDMIIMSSMBCFullCalculateUncertainties[handle];
+             ];
+           FSTHDMIIMSSMBCFullCloseHandle[handle];
+           If[calcUncerts, uncerts, spectrum]
+          ];
+
 GetPar[spec_, par__] :=
     GetPar[spec, #]& /@ {par};
 
@@ -419,6 +485,14 @@ RunSplitMSSMDegMh[args__] :=
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]]]
+             ]
+          ];
+
+RunTHDMIIMSSMBCFullMh[args__] :=
+    Module[{spec = RunTHDMIIMSSMBCFull[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]][1]]
              ]
           ];
 
@@ -488,6 +562,28 @@ RunSplitMSSMUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ
              ]
           ];
 
+RunTHDMIIMSSMBCFullUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                                 ytLoops_:2, Qpole_:0, QDR_:0] :=
+    Module[{uncerts, MhEFT},
+           uncerts = RunTHDMIIMSSMBCFull[MS, TB, Xt, MA, ytLoops, Qpole, QDR, True];
+           (* with extra terms ~ v^2/MS^2 *)
+           MhEFT = GetPar[RunTHDMIIMSSMBCFull[MS, TB, Xt, MA, ytLoops, Qpole, QDR, False, 1, 0], Pole[M[hh]][1]];
+           MhYt  = GetPar[RunTHDMIIMSSMBCFull[MS, TB, Xt, MA, ytLoops, Qpole, QDR, False, 0, 1], Pole[M[hh]][1]];
+           If[uncerts === $Failed,
+              { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
+              {
+                  (Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)))[[1]],
+                  MhEFT,
+                  MhYt
+              }
+             ]
+          ];
+
 IsValid[ex_]          := FreeQ[ex, invalid];
 RemoveInvalid[l_List] := Select[l, IsValid];
 MaxDiff[l_List]       := Max[Abs[RemoveInvalid[l]]] - Min[Abs[RemoveInvalid[l]]];
@@ -521,6 +617,16 @@ RunSplit[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ] :
            Mhyt2L = RunSplitMSSMMh[MS, TB, Xt, Mi, M3, 2];
            Mhyt3L = RunSplitMSSMMh[MS, TB, Xt, Mi, M3, 3];
            DMh = RunSplitMSSMUncertainties[MS, TB, Xt, Mi, M3, 2];
+           (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
+           {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
+          ];
+
+RunTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ] :=
+    Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
+           Mhyt1L = RunTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, 1, 0, MS];
+           Mhyt2L = RunTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, 2, 0, MS];
+           Mhyt3L = RunTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, 3, 0, MS];
+           DMh = RunTHDMIIMSSMBCFullUncertainties[MS, TB, Xt, MA, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
@@ -621,7 +727,7 @@ ScanHSSUSYDeg[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50};
+(* ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}; *)
 
 (********** SplitMSSM non-degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
@@ -651,3 +757,18 @@ ScanSplitMSSMDeg[TB_, Xt_, Mlow_, start_:500, stop_:1.0 10^16, steps_:60] :=
           ];
 
 (* ScanSplitMSSMDeg[#, N@Sqrt[6], 1500]& /@ {2, 10, 20, 50}; *)
+
+(********** THDM degenerate masses: TB = [2,50], MS = [1000, 10^16], Xt = ? **********)
+
+ScanTHDMIIMSSMBCFullMS[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LogRange[MSstart, MSstop, steps], LinearRange[TBstart, TBstop, steps]}];
+           res = {Sequence @@ N[#], MA, Xt, Sequence @@ RunTHDM[Sequence @@ #, Xt, MA]}& /@ tuples;
+           Export["THDMIIMSSMBCFull_TB_MS_Xt-" <> ToString[Xt] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanTHDMIIMSSMBCFullMS[0, 400, 1000., 1.0 10^16, 2, 50, 10];
+
+(* ScanTHDMIIMSSMBCFullMS[0, 400]; *)
+(* ScanTHDMIIMSSMBCFullMS[0, 800]; *)
