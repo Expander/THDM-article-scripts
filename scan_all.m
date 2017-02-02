@@ -596,8 +596,21 @@ ScanSplitMSSMMi[TB_, Xt_, MS_, M3fac_, start_:500, stop_:3000, steps_:60] :=
 (********** HSSUSY non-degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
 HSSUSYDegVary[MS_, TB_, Xt_] :=
-    Module[{data},
-           data = RunHSSUSYDegMh[MS, TB, Xt, Sequence @@ #]& /@ Tuples[{MS/3, 3 MS}, 11];
+    Module[{data, tuples},
+           tuples = Tuples[{
+               {MS/3, 3 MS}, (* MQ *)
+               {MS/3, 3 MS}, (* MQ3 *)
+               {MS/3, 3 MS}, (* MU *)
+               {MS/3, 3 MS}, (* MU3 *)
+               {MS/3, 3 MS}, (* MD *)
+               {MS/3, 3 MS}, (* ML *)
+               {MS/3, 3 MS}, (* ME *)
+               {MS/3, 3 MS}, (* Mi *)
+               {MS/2, 2 MS}, (* M3 *)
+               {MS/3, 3 MS}, (* Mu *)
+               {MS/3, 3 MS}  (* mA *)
+           }];
+           data = RunHSSUSYDegMh[MS, TB, Xt, Sequence @@ #]& /@ tuples;
            {MS, TB, Xt, Sequence @@ MinMax[data]}
           ];
 
@@ -608,7 +621,7 @@ ScanHSSUSYDeg[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-(* ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}; *)
+ScanHSSUSYDeg[#, N@Sqrt[6]]& /@ {2, 10, 20, 50};
 
 (********** SplitMSSM non-degenerate masses: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
@@ -637,4 +650,4 @@ ScanSplitMSSMDeg[TB_, Xt_, Mlow_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanSplitMSSMDeg[#, N@Sqrt[6], 1500]& /@ {2, 10, 20, 50};
+(* ScanSplitMSSMDeg[#, N@Sqrt[6], 1500]& /@ {2, 10, 20, 50}; *)
