@@ -768,5 +768,31 @@ ScanTHDMIIMSSMBCFullMSTB[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2,
            res
           ];
 
-ScanTHDMIIMSSMBCFullMSTB[0, 400];
-ScanTHDMIIMSSMBCFullMSTB[0, 800];
+(* ScanTHDMIIMSSMBCFullMSTB[0, 400]; *)
+(* ScanTHDMIIMSSMBCFullMSTB[0, 800]; *)
+
+(********** THDM degenerate masses: TB = [2,50], MA = [100, 500], Xt = ? **********)
+
+ScanTHDMIIMSSMBCFullTBMA[Xt_, MS_, MAstart_:100, MAstop_:500, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LogRange[MAstart, MAstop, steps]}];
+           res = {MS, Sequence @@ N[#], Xt, Sequence @@ RunTHDM[MS, #[[1]], Xt, #[[2]]]}& /@ tuples;
+           Export["THDMIIMSSMBCFull_TB_MA_Xt-" <> ToString[Xt] <> "_MS-" <> ToString[MS] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanTHDMIIMSSMBCFullTBMA[0, 5000];
+ScanTHDMIIMSSMBCFullTBMA[0, 10^4];
+ScanTHDMIIMSSMBCFullTBMA[0, 5 10^4];
+
+(********** THDM degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
+
+ScanTHDMIIMSSMBCFullMSMA[Xt_, TB_, MSstart_:1000, MSstop_:1.0 10^16, MAstart_:100, MAstop_:500, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[MAstart, MAstop, steps], LogRange[MSstart, MSstop, steps]}];
+           res = {N[#[[2]]], TB, N[#[[1]]], Xt, Sequence @@ RunTHDM[#[[2]], TB, Xt, #[[1]]]}& /@ tuples;
+           Export["THDMIIMSSMBCFull_MS_MA_Xt-" <> ToString[Xt] <> "_TB-" <> ToString[TB] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanTHDMIIMSSMBCFullMSMA[0, #]& /@ {2, 10, 20, 50};
