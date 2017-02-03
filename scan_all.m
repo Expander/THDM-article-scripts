@@ -415,7 +415,7 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    LambdaLoopOrder -> 2,
                    DeltaAlphaS -> sigmaAlphaS,
                    DeltaMTopPole -> sigmaAlphaS,
-                   (* DeltaEFT -> eft, *)
+                   DeltaEFT -> eft,
                    DeltaYt -> yt,
                    AeInput -> 0 MS TB IdentityMatrix[3],
                    AdInput -> 0 MS TB IdentityMatrix[3],
