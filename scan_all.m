@@ -760,7 +760,7 @@ ScanSplitMSSMDeg[TB_, Xt_, Mlow_, start_:500, stop_:1.0 10^16, steps_:60] :=
 
 (********** THDM degenerate masses: TB = [2,50], MS = [1000, 10^16], Xt = ? **********)
 
-ScanTHDMIIMSSMBCFullMS[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, TBstop_:50, steps_:60] :=
+ScanTHDMIIMSSMBCFullMSTB[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, TBstop_:50, steps_:60] :=
     Module[{res, tuples},
            tuples = Tuples[{LogRange[MSstart, MSstop, steps], LinearRange[TBstart, TBstop, steps]}];
            res = {Sequence @@ N[#], MA, Xt, Sequence @@ RunTHDM[Sequence @@ #, Xt, MA]}& /@ tuples;
@@ -768,5 +768,5 @@ ScanTHDMIIMSSMBCFullMS[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, T
            res
           ];
 
-ScanTHDMIIMSSMBCFullMS[0, 400];
-ScanTHDMIIMSSMBCFullMS[0, 800];
+ScanTHDMIIMSSMBCFullMSTB[0, 400];
+ScanTHDMIIMSSMBCFullMSTB[0, 800];
