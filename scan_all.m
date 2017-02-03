@@ -768,7 +768,5 @@ ScanTHDMIIMSSMBCFullMS[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, T
            res
           ];
 
-ScanTHDMIIMSSMBCFullMS[0, 400, 1000., 1.0 10^16, 2, 50, 10];
-
-(* ScanTHDMIIMSSMBCFullMS[0, 400]; *)
-(* ScanTHDMIIMSSMBCFullMS[0, 800]; *)
+ScanTHDMIIMSSMBCFullMS[0, 400];
+ScanTHDMIIMSSMBCFullMS[0, 800];
