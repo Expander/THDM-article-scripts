@@ -764,7 +764,7 @@ ScanTHDMIIMSSMBCFullMS[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, T
     Module[{res, tuples},
            tuples = Tuples[{LogRange[MSstart, MSstop, steps], LinearRange[TBstart, TBstop, steps]}];
            res = {Sequence @@ N[#], MA, Xt, Sequence @@ RunTHDM[Sequence @@ #, Xt, MA]}& /@ tuples;
-           Export["THDMIIMSSMBCFull_TB_MS_Xt-" <> ToString[Xt] <> ".dat", res, "Table"];
+           Export["THDMIIMSSMBCFull_TB_MS_Xt-" <> ToString[Xt] <> "_MA-" <> ToString[MA] <> ".dat", res, "Table"];
            res
           ];
 
