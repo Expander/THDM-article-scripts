@@ -417,12 +417,12 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    DeltaMTopPole -> sigmaAlphaS,
                    (* DeltaEFT -> eft, *)
                    (* DeltaYt -> yt, *)
-                   AeInput -> MS TB IdentityMatrix[3],
-                   AdInput -> MS TB IdentityMatrix[3],
+                   AeInput -> 0 MS TB IdentityMatrix[3],
+                   AdInput -> 0 MS TB IdentityMatrix[3],
                    AuInput -> {
-                       {MS/TB, 0    , 0            },
-                       {0    , MS/TB, 0            },
-                       {0    , 0    , MS/TB + Xt MS}
+                       {0, 0, 0            },
+                       {0, 0, 0            },
+                       {0, 0, MS/TB + Xt MS}
                    },
                    msqInput -> MS {1,1,1},
                    msuInput -> MS {1,1,1},
