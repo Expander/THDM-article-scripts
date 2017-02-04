@@ -381,8 +381,8 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                fsSettings -> {
                    precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
-                   calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
                    ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
