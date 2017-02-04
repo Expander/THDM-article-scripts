@@ -564,7 +564,7 @@ RunSplitMSSMUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ
 
 RunTHDMIIMSSMBCFullUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                                  ytLoops_:2, Qpole_:0, QDR_:0] :=
-    Module[{uncerts, MhEFT},
+    Module[{uncerts, MhEFT, MhYt},
            uncerts = RunTHDMIIMSSMBCFull[MS, TB, Xt, MA, ytLoops, Qpole, QDR, True];
            (* with extra terms ~ v^2/MS^2 *)
            MhEFT = GetPar[RunTHDMIIMSSMBCFull[MS, TB, Xt, MA, ytLoops, Qpole, QDR, False, 1, 0], Pole[M[hh]][1]];
@@ -781,9 +781,9 @@ ScanTHDMIIMSSMBCFullTBMA[Xt_, MS_, MAstart_:100, MAstop_:500, TBstart_:2, TBstop
            res
           ];
 
-ScanTHDMIIMSSMBCFullTBMA[0, 5000];
-ScanTHDMIIMSSMBCFullTBMA[0, 10^4];
-ScanTHDMIIMSSMBCFullTBMA[0, 5 10^4];
+(* ScanTHDMIIMSSMBCFullTBMA[0, 5000]; *)
+(* ScanTHDMIIMSSMBCFullTBMA[0, 10^4]; *)
+(* ScanTHDMIIMSSMBCFullTBMA[0, 5 10^4]; *)
 
 (********** THDM degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
 
