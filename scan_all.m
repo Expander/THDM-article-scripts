@@ -111,9 +111,9 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           spectrum = FSHSSUSYCalculateSpectrum[handle];
            If[calcUncerts,
-              uncerts = FSHSSUSYCalculateUncertainties[handle];
+              uncerts = FSHSSUSYCalculateUncertainties[handle];,
+              spectrum = FSHSSUSYCalculateSpectrum[handle];
              ];
            FSHSSUSYCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
@@ -238,9 +238,9 @@ RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Nu
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           spectrum = FSSplitMSSMTowerCalculateSpectrum[handle];
            If[calcUncerts,
-              uncerts = FSSplitMSSMTowerCalculateUncertainties[handle];
+              uncerts = FSSplitMSSMTowerCalculateUncertainties[handle];,
+              spectrum = FSSplitMSSMTowerCalculateSpectrum[handle];
              ];
            FSSplitMSSMTowerCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
@@ -303,9 +303,9 @@ RunSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Numeric
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           spectrum = FSSplitMSSMCalculateSpectrum[handle];
            If[calcUncerts,
-              uncerts = FSSplitMSSMCalculateUncertainties[handle];
+              uncerts = FSSplitMSSMCalculateUncertainties[handle];,
+              spectrum = FSSplitMSSMCalculateSpectrum[handle];
              ];
            FSSplitMSSMCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
@@ -431,9 +431,9 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    mseInput -> MS {1,1,1}
                }
            ];
-           spectrum = FSTHDMIIMSSMBCFullCalculateSpectrum[handle];
            If[calcUncerts,
-              uncerts = FSTHDMIIMSSMBCFullCalculateUncertainties[handle];
+              uncerts = FSTHDMIIMSSMBCFullCalculateUncertainties[handle];,
+              spectrum = FSTHDMIIMSSMBCFullCalculateSpectrum[handle];
              ];
            FSTHDMIIMSSMBCFullCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
