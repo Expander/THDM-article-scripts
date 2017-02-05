@@ -2,6 +2,7 @@ Get["models/HSSUSY/HSSUSY_librarylink.m"];
 Get["addons/SplitMSSMTower/SplitMSSMTower_librarylink.m"];
 Get["models/SplitMSSM/SplitMSSM_librarylink.m"];
 Get["models/THDMIIMSSMBCFull/THDMIIMSSMBCFull_librarylink.m"];
+Get["models/HGTHDMIIMSSMBCFull/HGTHDMIIMSSMBCFull_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -439,6 +440,73 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            If[calcUncerts, uncerts, spectrum]
           ];
 
+RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                      Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ,
+                      ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+    Module[{handle, spectrum, uncerts = {}},
+           handle = FSHGTHDMIIMSSMBCFullOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> Qpole,            (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> 0,             (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 1,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> QDR        (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   TanBeta -> TB,
+                   MSUSY -> MS,
+                   MEWSB -> Mtpole,
+                   MuInput -> Mu,
+                   M1Input -> M12,
+                   M2Input -> M12,
+                   M3Input -> M3,
+                   MAInput -> MA,
+                   LambdaLoopOrder -> 2,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaMt,
+                   DeltaEFT -> eft,
+                   DeltaYt -> yt,
+                   AeInput -> 0 MS TB IdentityMatrix[3],
+                   AdInput -> 0 MS TB IdentityMatrix[3],
+                   AuInput -> {
+                       {0, 0, 0            },
+                       {0, 0, 0            },
+                       {0, 0, Mu/TB + Xt MS}
+                   },
+                   msqInput -> MS {1,1,1},
+                   msuInput -> MS {1,1,1},
+                   msdInput -> MS {1,1,1},
+                   mslInput -> MS {1,1,1},
+                   mseInput -> MS {1,1,1}
+               }
+           ];
+           If[calcUncerts,
+              uncerts = FSHGTHDMIIMSSMBCFullCalculateUncertainties[handle];,
+              spectrum = FSHGTHDMIIMSSMBCFullCalculateSpectrum[handle];
+             ];
+           FSHGTHDMIIMSSMBCFullCloseHandle[handle];
+           If[calcUncerts, uncerts, spectrum]
+          ];
+
 GetPar[spec_, par__] :=
     GetPar[spec, #]& /@ {par};
 
@@ -490,6 +558,14 @@ RunSplitMSSMDegMh[args__] :=
 
 RunTHDMIIMSSMBCFullMh[args__] :=
     Module[{spec = RunTHDMIIMSSMBCFull[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]][1]]
+             ]
+          ];
+
+RunHGTHDMIIMSSMBCFullMh[args__] :=
+    Module[{spec = RunHGTHDMIIMSSMBCFull[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]][1]]
@@ -584,6 +660,29 @@ RunTHDMIIMSSMBCFullUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?N
              ]
           ];
 
+RunHGTHDMIIMSSMBCFullUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                                   Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ,
+                                   ytLoops_:2, Qpole_:0, QDR_:0] :=
+    Module[{uncerts, MhEFT, MhYt},
+           uncerts = RunHGTHDMIIMSSMBCFull[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, QDR, True];
+           (* with extra terms ~ v^2/MS^2 *)
+           MhEFT = GetPar[RunHGTHDMIIMSSMBCFull[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, QDR, False, 1, 0], Pole[M[hh]][1]];
+           MhYt  = GetPar[RunHGTHDMIIMSSMBCFull[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, QDR, False, 0, 1], Pole[M[hh]][1]];
+           If[uncerts === $Failed,
+              { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
+              {
+                  (Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)))[[1]],
+                  MhEFT,
+                  MhYt
+              }
+             ]
+          ];
+
 IsValid[ex_]          := FreeQ[ex, invalid];
 RemoveInvalid[l_List] := Select[l, IsValid];
 MaxDiff[l_List]       := Max[Abs[RemoveInvalid[l]]] - Min[Abs[RemoveInvalid[l]]];
@@ -627,6 +726,17 @@ RunTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ] :=
            Mhyt2L = RunTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, 2, 0, MS];
            Mhyt3L = RunTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, 3, 0, MS];
            DMh = RunTHDMIIMSSMBCFullUncertainties[MS, TB, Xt, MA, 2];
+           (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
+           {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
+          ];
+
+RunHGTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+          Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ] :=
+    Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
+           Mhyt1L = RunHGTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, Mu, M12, M3, 1, 0, MS];
+           Mhyt2L = RunHGTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, Mu, M12, M3, 2, 0, MS];
+           Mhyt3L = RunHGTHDMIIMSSMBCFullMh[MS, TB, Xt, MA, Mu, M12, M3, 3, 0, MS];
+           DMh = RunHGTHDMIIMSSMBCFullUncertainties[MS, TB, Xt, MA, Mu, M12, M3, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
@@ -796,3 +906,48 @@ ScanTHDMIIMSSMBCFullMSMA[Xt_, TB_, MSstart_:1000, MSstop_:1.0 10^16, MAstart_:10
           ];
 
 (* ScanTHDMIIMSSMBCFullMSMA[0, #]& /@ {2, 10, 20, 50}; *)
+
+(********** HGTHDM degenerate masses: TB = [2,50], MS = [1000, 10^16], Xt = ? **********)
+
+ScanHGTHDMIIMSSMBCFullMSTB[Xt_, MA_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LogRange[MSstart, MSstop, steps], LinearRange[TBstart, TBstop, steps]}];
+           res = {N[#[[1]]], Mui, Mui, Mui, N[#[[2]]], MA, Xt,
+                  Sequence @@ RunHGTHDM[Sequence @@ #, Xt, MA, Mui, Mui, Mui]}& /@ tuples;
+           Export["HGTHDMIIMSSMBCFull_TB_MS_Xt-" <> ToString[Xt] <> "_MA-" <> ToString[MA] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanHGTHDMIIMSSMBCFullMSTB[0, 400, 2000];
+ScanHGTHDMIIMSSMBCFullMSTB[0, 800, 2000];
+
+(********** HGTHDM degenerate masses: TB = [2,50], MA = [100, 500], Xt = ? **********)
+
+ScanHGTHDMIIMSSMBCFullTBMA[Xt_, MS_, Mui_, MAstart_:100, MAstop_:500, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LogRange[MAstart, MAstop, steps]}];
+           res = {MS, Mui, Mui, Mui, Sequence @@ N[#], Xt,
+                  Sequence @@ RunHGTHDM[MS, #[[1]], Xt, #[[2]], Mui, Mui, Mui]}& /@ tuples;
+           Export["HGTHDMIIMSSMBCFull_TB_MA_Xt-" <> ToString[Xt] <> "_MS-" <> ToString[MS] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanHGTHDMIIMSSMBCFullTBMA[0, 5000, 2000];
+ScanHGTHDMIIMSSMBCFullTBMA[0, 10^4, 2000];
+ScanHGTHDMIIMSSMBCFullTBMA[0, 5 10^4, 2000];
+
+(********** HGTHDM degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
+
+ScanHGTHDMIIMSSMBCFullMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MAstart_:100, MAstop_:500, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[MAstart, MAstop, steps], LogRange[MSstart, MSstop, steps]}];
+           res = {N[#[[2]]], Mui, Mui, Mui, TB, N[#[[1]]], Xt,
+                  Sequence @@ RunHGTHDM[#[[2]], TB, Xt, #[[1]], Mui, Mui, Mui]}& /@ tuples;
+           Export["HGTHDMIIMSSMBCFull_MS_MA_Xt-" <> ToString[Xt] <> "_TB-" <> ToString[TB] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanHGTHDMIIMSSMBCFullMSMA[0, #, 2000]& /@ {2, 10, 20, 50};
