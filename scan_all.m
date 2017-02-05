@@ -795,4 +795,4 @@ ScanTHDMIIMSSMBCFullMSMA[Xt_, TB_, MSstart_:1000, MSstop_:1.0 10^16, MAstart_:10
            res
           ];
 
-ScanTHDMIIMSSMBCFullMSMA[0, #]& /@ {2, 10, 20, 50};
+(* ScanTHDMIIMSSMBCFullMSMA[0, #]& /@ {2, 10, 20, 50}; *)
