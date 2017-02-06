@@ -547,6 +547,8 @@ RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    MuInput -> MS,
                    mAInput -> MS,
                    TanBeta -> TB,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaMt,
                    AeInput -> 0 MS TB IdentityMatrix[3],
                    AdInput -> 0 MS TB IdentityMatrix[3],
                    AuInput -> {
