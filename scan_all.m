@@ -532,7 +532,7 @@ RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    eftPoleMassScale -> Qpole,         (* FlexibleSUSY[18] *)
                    eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
                    eftMatchingLoopOrderUp -> yt,      (* FlexibleSUSY[20] *)
-                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftMatchingLoopOrderDown -> 1,     (* FlexibleSUSY[21] *)
                    eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
                    calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
                    parameterOutputScale -> QDR        (* MODSEL[12] *)
