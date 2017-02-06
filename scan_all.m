@@ -557,9 +557,7 @@ RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                        {0, 0, MS/TB + Xt MS}
                    },
                    mq2Input -> MS^2 IdentityMatrix[3],
-                   mu2Input -> {{ MS^2, 0   , 0    },
-                                { 0   , MS^2, 0    },
-                                { 0   , 0   , MS^2 }},
+                   mu2Input -> MS^2 IdentityMatrix[3],
                    md2Input -> MS^2 IdentityMatrix[3],
                    ml2Input -> MS^2 IdentityMatrix[3],
                    me2Input -> MS^2 IdentityMatrix[3]
