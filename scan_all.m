@@ -772,12 +772,12 @@ RunMSSMtowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
            If[uncerts === $Failed,
               { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
               {
-                  Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts))[[1]],
-                  Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts))[[1]],
-                  Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts))[[1]],
-                  Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts))[[1]],
-                  Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts))[[1]],
-                  Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)))[[1]],
                   0,
                   MhYt
               }
