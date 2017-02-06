@@ -509,7 +509,7 @@ RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
           ];
 
 RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
-             ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+             ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, yt_:2] :=
     Module[{handle, spectrum, uncerts = {}},
            handle = FSMSSMtowerOpenHandle[
                fsSettings -> {
@@ -531,7 +531,7 @@ RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    poleMassScale -> 0,                (* FlexibleSUSY[17] *)
                    eftPoleMassScale -> Qpole,         (* FlexibleSUSY[18] *)
                    eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
-                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderUp -> yt,      (* FlexibleSUSY[20] *)
                    eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
                    eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
                    calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
@@ -630,6 +630,22 @@ RunTHDMIIMSSMBCFullMh[args__] :=
 
 RunHGTHDMIIMSSMBCFullMh[args__] :=
     Module[{spec = RunHGTHDMIIMSSMBCFull[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]][1]]
+             ]
+          ];
+
+RunMSSMtowerMh[args__] :=
+    Module[{spec = RunMSSMtower[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]][1]]
+             ]
+          ];
+
+RunMSSMtowerDegMh[args__] :=
+    Module[{spec = RunMSSMtowerDeg[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]][1]]
@@ -747,6 +763,27 @@ RunHGTHDMIIMSSMBCFullUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_
              ]
           ];
 
+RunMSSMtowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
+                          ytLoops_:2, Qpole_:0, QDR_:0] :=
+    Module[{uncerts, MhEFT},
+           uncerts = RunMSSMtower[MS, TB, Xt, ytLoops, Qpole, QDR, True];
+           (* with extra terms ~ v^2/MS^2 *)
+           MhYt  = GetPar[RunMSSMtower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 0], Pole[M[hh]][1]];
+           If[uncerts === $Failed,
+              { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
+              {
+                  Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts))[[1]],
+                  Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts))[[1]],
+                  Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts))[[1]],
+                  Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts))[[1]],
+                  Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts))[[1]],
+                  Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts))[[1]],
+                  0,
+                  MhYt
+              }
+             ]
+          ];
+
 IsValid[ex_]          := FreeQ[ex, invalid];
 RemoveInvalid[l_List] := Select[l, IsValid];
 MaxDiff[l_List]       := Max[Abs[RemoveInvalid[l]]] - Min[Abs[RemoveInvalid[l]]];
@@ -805,6 +842,16 @@ RunHGTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
 
+RunFSEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
+    Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
+           Mhyt1L = RunMSSMtowerMh[MS, TB, Xt, 1, 0, MS];
+           Mhyt2L = RunMSSMtowerMh[MS, TB, Xt, 2, 0, MS];
+           Mhyt3L = RunMSSMtowerMh[MS, TB, Xt, 3, 0, MS];
+           DMh = RunMSSMtowerUncertainties[MS, TB, Xt, 2];
+           (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
+           {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
+          ];
+
 steps = 60;
 
 MSstart = 500;
@@ -833,6 +880,28 @@ ScanHSSUSYXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
           ];
 
 (* ScanHSSUSYXt[20, 2000]; *)
+
+(********** FlexibleEFTHiggs scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+
+ScanFlexibleEFTHiggsMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
+    Module[{res},
+           res = {#, TB, Xt, Sequence @@ RunFSEFTHiggs[#, TB, Xt]}& /@ LogRange[start, stop, steps];
+           Export["FlexibleEFTHiggs_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[Xt] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanFlexibleEFTHiggsMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}
+
+(********** FlexibleEFTHiggs scenario 2: TB = 2, MS = 2 TeV **********)
+
+ScanFlexibleEFTHiggsXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
+    Module[{res},
+           res = {MS, TB, N[#], Sequence @@ RunFSEFTHiggs[MS, TB, #]}& /@ LinearRange[start, stop, steps];
+           Export["FlexibleEFTHiggs_Xt_TB-" <> ToString[TB] <> "_MS-" <> ToString[MS] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanFlexibleEFTHiggsXt[20, 2000];
 
 (********** SplitMSSMTower scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
