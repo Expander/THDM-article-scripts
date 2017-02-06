@@ -24,7 +24,7 @@ RunSUSYHD[MS_, TB_, Xt_] :=
                           higgsMu, higgsAt, mq3, mu3, md3, mq2, mu2,
                           md2, mq1, mu1, md1, ml3, me3, ml2, me2, ml1,
                           me1, mA}, Rscale->MS, scheme->"DRbar",
-                          hiOrd->{1,1,1,1}, numerical->True,
+                          hiOrd->{1,1,1,0}, numerical->True,
                           split->False];
 
            dmass= \[CapitalDelta]MHiggs[{TB, gauginoM1, gauginoM2,
