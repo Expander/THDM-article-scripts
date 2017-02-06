@@ -890,7 +890,7 @@ ScanFlexibleEFTHiggsMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanFlexibleEFTHiggsMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50}
+(* ScanFlexibleEFTHiggsMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50} *)
 
 (********** FlexibleEFTHiggs scenario 2: TB = 2, MS = 2 TeV **********)
 
@@ -901,7 +901,7 @@ ScanFlexibleEFTHiggsXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
            res
           ];
 
-ScanFlexibleEFTHiggsXt[20, 2000];
+(* ScanFlexibleEFTHiggsXt[20, 2000]; *)
 
 (********** SplitMSSMTower scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
