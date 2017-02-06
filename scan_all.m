@@ -983,8 +983,8 @@ ScanHGTHDMIIMSSMBCFullMSTB[Xt_, MA_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, TBs
            res
           ];
 
-ScanHGTHDMIIMSSMBCFullMSTB[0, 400, 2000];
-ScanHGTHDMIIMSSMBCFullMSTB[0, 800, 2000];
+(* ScanHGTHDMIIMSSMBCFullMSTB[0, 400, 2000]; *)
+(* ScanHGTHDMIIMSSMBCFullMSTB[0, 800, 2000]; *)
 
 (********** HGTHDM degenerate masses: TB = [2,50], MA = [100, 500], Xt = ? **********)
 
@@ -998,9 +998,9 @@ ScanHGTHDMIIMSSMBCFullTBMA[Xt_, MS_, Mui_, MAstart_:100, MAstop_:500, TBstart_:2
            res
           ];
 
-ScanHGTHDMIIMSSMBCFullTBMA[0, 5000, 2000];
-ScanHGTHDMIIMSSMBCFullTBMA[0, 10^4, 2000];
-ScanHGTHDMIIMSSMBCFullTBMA[0, 5 10^4, 2000];
+(* ScanHGTHDMIIMSSMBCFullTBMA[0, 5000, 2000]; *)
+(* ScanHGTHDMIIMSSMBCFullTBMA[0, 10^4, 2000]; *)
+(* ScanHGTHDMIIMSSMBCFullTBMA[0, 5 10^4, 2000]; *)
 
 (********** HGTHDM degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
 
@@ -1014,4 +1014,4 @@ ScanHGTHDMIIMSSMBCFullMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MAs
            res
           ];
 
-ScanHGTHDMIIMSSMBCFullMSMA[0, #, 2000]& /@ {2, 10, 20, 50};
+(* ScanHGTHDMIIMSSMBCFullMSMA[0, #, 2000]& /@ {2, 10, 20, 50}; *)
