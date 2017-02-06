@@ -42,7 +42,7 @@ RunSUSYHD[MS_, TB_, Xt_] :=
 ScanMS[TB_, Xt_] :=
     Module[{data},
            data = {N[#], N[TB], N[Xt], Sequence @@ RunSUSYHD[N[#],TB,Xt]}& /@ LogRange[500, 10^16, 60];
-           Export["SUSYHD_MS_TB-" <> ToString[N[TB]] <> "_Xt-" <> ToString[N[Xt]] <> ".dat", data, "Table"];
+           Export["SUSYHD_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[N[Xt]] <> ".dat", data, "Table"];
           ];
 
 ScanMS[#, Sqrt[6]]& /@ {2, 10, 20, 50}
