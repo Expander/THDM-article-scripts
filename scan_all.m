@@ -3,6 +3,7 @@ Get["addons/SplitMSSMTower/SplitMSSMTower_librarylink.m"];
 Get["models/SplitMSSM/SplitMSSM_librarylink.m"];
 Get["models/THDMIIMSSMBCFull/THDMIIMSSMBCFull_librarylink.m"];
 Get["models/HGTHDMIIMSSMBCFull/HGTHDMIIMSSMBCFull_librarylink.m"];
+Get["models/MSSMtower/MSSMtower_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -504,6 +505,69 @@ RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
               spectrum = FSHGTHDMIIMSSMBCFullCalculateSpectrum[handle];
              ];
            FSHGTHDMIIMSSMBCFullCloseHandle[handle];
+           If[calcUncerts, uncerts, spectrum]
+          ];
+
+RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
+             ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+    Module[{handle, spectrum, uncerts = {}},
+           handle = FSMSSMtowerOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> 0,                (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> Qpole,         (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> QDR        (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   SignMu -> 1,
+                   MSUSY -> MS,
+                   M1Input -> MS,
+                   M2Input -> MS,
+                   M3Input -> MS,
+                   MuInput -> MS,
+                   mAInput -> MS,
+                   TanBeta -> TB,
+                   AeInput -> 0 MS TB IdentityMatrix[3],
+                   AdInput -> 0 MS TB IdentityMatrix[3],
+                   AuInput -> {
+                       {0, 0, 0            },
+                       {0, 0, 0            },
+                       {0, 0, MS/TB + Xt MS}
+                   },
+                   mq2Input -> MS^2 IdentityMatrix[3],
+                   mu2Input -> {{ MS^2, 0   , 0    },
+                                { 0   , MS^2, 0    },
+                                { 0   , 0   , MS^2 }},
+                   md2Input -> MS^2 IdentityMatrix[3],
+                   ml2Input -> MS^2 IdentityMatrix[3],
+                   me2Input -> MS^2 IdentityMatrix[3]
+               }
+           ];
+           If[calcUncerts,
+              uncerts = FSMSSMtowerCalculateUncertainties[handle];,
+              spectrum = FSMSSMtowerCalculateSpectrum[handle];
+             ];
+           FSMSSMtowerCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
           ];
 
