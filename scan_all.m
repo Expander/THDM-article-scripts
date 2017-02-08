@@ -1018,7 +1018,7 @@ ScanTHDMIIMSSMBCFullMSTB[Xt_, MA_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2,
 
 ScanTHDMIIMSSMBCFullTBMA[Xt_, MS_, MAstart_:100, MAstop_:500, TBstart_:2, TBstop_:50, steps_:60] :=
     Module[{res, tuples},
-           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LogRange[MAstart, MAstop, steps]}];
+           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LinearRange[MAstart, MAstop, steps]}];
            res = {MS, Sequence @@ N[#], Xt, Sequence @@ RunTHDM[MS, #[[1]], Xt, #[[2]]]}& /@ tuples;
            Export["THDMIIMSSMBCFull_TB_MA_Xt-" <> ToString[Xt] <> "_MS-" <> ToString[MS] <> ".dat", res, "Table"];
            res
@@ -1059,7 +1059,7 @@ ScanHGTHDMIIMSSMBCFullMSTB[Xt_, MA_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, TBs
 
 ScanHGTHDMIIMSSMBCFullTBMA[Xt_, MS_, Mui_, MAstart_:100, MAstop_:500, TBstart_:2, TBstop_:50, steps_:60] :=
     Module[{res, tuples},
-           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LogRange[MAstart, MAstop, steps]}];
+           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LinearRange[MAstart, MAstop, steps]}];
            res = {MS, Mui, Mui, Mui, Sequence @@ N[#], Xt,
                   Sequence @@ RunHGTHDM[MS, #[[1]], Xt, #[[2]], Mui, Mui, Mui]}& /@ tuples;
            Export["HGTHDMIIMSSMBCFull_TB_MA_Xt-" <> ToString[Xt] <> "_MS-" <> ToString[MS] <>
