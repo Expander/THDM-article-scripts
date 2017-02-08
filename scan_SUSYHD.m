@@ -3,6 +3,9 @@ Needs["SUSYHD`"];
 Mtpole = 173.21;
 alphaSAtMZ = 0.1181;
 
+LinearRange[start_, stop_, steps_] :=
+    Table[start + i/steps (stop - start), {i, 0, steps}];
+
 LogRange[start_, stop_, steps_] :=
     Module[{i, result = {}},
            For[i = 0, i <= steps, i++,
@@ -39,10 +42,23 @@ RunSUSYHD[MS_, TB_, Xt_] :=
            {mass, dmass}
     ];
 
+(********** HSSUSY scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
+
 ScanMS[TB_, Xt_] :=
     Module[{data},
            data = {N[#], N[TB], N[Xt], Sequence @@ RunSUSYHD[N[#],TB,Xt]}& /@ LogRange[500, 10^16, 60];
            Export["SUSYHD_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[N[Xt]] <> ".dat", data, "Table"];
           ];
 
-ScanMS[#, Sqrt[6]]& /@ {2, 10, 20, 50}
+(* ScanMS[#, Sqrt[6]]& /@ {2, 10, 20, 50} *)
+
+(********** HSSUSY scenario 2: TB = 2, MS = 2 TeV **********)
+
+ScanXt[TB_, MS_, start_:-4, stop_:4, steps_:60] :=
+    Module[{res},
+           res = {MS, TB, N[#], Sequence @@ RunSUSYHD[MS, TB, #]}& /@ LinearRange[start, stop, steps];
+           Export["SUSYHD_Xt_TB-" <> ToString[TB] <> "_MS-" <> ToString[MS] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanXt[20, 2000];
