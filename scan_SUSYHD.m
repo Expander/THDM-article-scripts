@@ -43,7 +43,7 @@ RunSUSYHD[MS_, TB_, Xt_] :=
     ];
 
 RunSUSYHD[MS_, TB_, Xt_, Mi_, M3_] :=
-    Module[{gauginoM1 = MS, gauginoM2 = MS, gauginoM3 = M3, higgsMu = Mi, higgsAt, mq3=MS,
+    Module[{gauginoM1 = Mi, gauginoM2 = Mi, gauginoM3 = M3, higgsMu = Mi, higgsAt, mq3=MS,
             mu3=MS, md3=MS, mq2=MS, mu2=MS, md2=MS, mq1=MS, mu1=MS, md1=MS,
             ml3=MS, me3=MS, ml2=MS, me2=MS, ml1=MS, me1=MS, mA=MS,
             mass, dmass },
