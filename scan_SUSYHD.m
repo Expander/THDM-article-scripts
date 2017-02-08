@@ -78,7 +78,7 @@ ScanMS[TB_, Xt_] :=
            Export["SUSYHD_MS_TB-" <> ToString[TB] <> "_Xt-" <> ToString[N[Xt]] <> ".dat", data, "Table"];
           ];
 
-(* ScanMS[#, Sqrt[6]]& /@ {2, 10, 20, 50} *)
+(* ScanMS[#, Sqrt[6]]& /@ {2, 10, 20, 50}; *)
 
 (********** HSSUSY scenario 2: TB = 2, MS = 2 TeV **********)
 
@@ -101,7 +101,7 @@ ScanSplitMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
            res
           ];
 
-ScanSplitMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50};
+(* ScanSplitMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50}; *)
 
 (********** split-MSSM scenario 2: TB = 10, MS = 5 TeV **********)
 
@@ -113,4 +113,4 @@ ScanSplitXt[TB_, MS_, Mi_, start_:-4, stop_:4, steps_:60] :=
            res
           ];
 
-ScanSplitXt[10, 5000, 2000];
+(* ScanSplitXt[10, 5000, 2000]; *)
