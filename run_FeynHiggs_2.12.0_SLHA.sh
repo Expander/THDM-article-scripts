@@ -128,8 +128,6 @@ DMh=
 
 ${fh} "${fh_in}" 4002023110 >/dev/null 2>&1
 
-rm -f "${fh_in}" "${fh_out}"
-
 if [ -e "${fh_out}" ] ; then
     Mh=$(awk -v block=MASS "${print_slha_block_awk}" "${fh_out}" | \
          awk -v entries=25 "${print_slha_block_entry_awk}")
@@ -142,3 +140,5 @@ fi
 [ "x$DMh" = "x" ] && DMh=-
 
 echo "$Mh   $DMh"
+
+rm -f "${fh_in}" "${fh_out}"
