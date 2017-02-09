@@ -6,7 +6,7 @@ BASEDIR=$(dirname $0)
 
 for TB in 2 10 20 50; do
     Xt=2.44949
-    ${BASEDIR}/scan_FH.sh --parameter=MS --TB=${TB} --Xt=${Xt} --start=500 --stop=10000000000000000 \
+    ${BASEDIR}/scan_FH.sh --parameter=MS --TB=${TB} --Xt=${Xt} --start=500 --stop=5000 \
         | awk "{ print \$1 \"    \" ${TB} \"    \" ${Xt} \"    \" \$2 \"    \" \$3 }" \
         | tee FH-2.12.2_MS_TB-${TB}_Xt-${Xt}.dat
 done
@@ -26,7 +26,7 @@ ${BASEDIR}/scan_FH.sh --parameter=Xt --MS=${MS} --TB=${TB} --start=-4 --stop=4 -
 for TB in 2 10 20 50; do
     Xt=2.44949
     Mi=2000
-    ${BASEDIR}/scan_FH.sh --parameter=MS --TB=${TB} --Xt=${Xt} --Mi=${Mi} --start=500 --stop=10000000000000000 \
+    ${BASEDIR}/scan_FH.sh --parameter=MS --TB=${TB} --Xt=${Xt} --Mi=${Mi} --start=500 --stop=5000 \
         | awk "{ print \$1 \"    \" ${Mi} \"    \" ${Mi} \"    \" ${Mi} \"    \" ${TB} \"    \" ${Xt} \"    \" \$2 \"    \" \$3 }" \
         | tee FH-2.12.2_MS_TB-${TB}_Xt-${Xt}_Mi-${Mi}.dat
 done
