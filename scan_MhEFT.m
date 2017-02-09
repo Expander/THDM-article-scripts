@@ -3,6 +3,17 @@ Get["MhEFT.m"];
 Mtpole = 173.21;
 alphaSAtMZ = 0.1181;
 
+LinearRange[start_, stop_, steps_] :=
+    Table[start + i/steps (stop - start), {i, 0, steps}];
+
+LogRange[start_, stop_, steps_] :=
+    Module[{i, result = {}},
+           For[i = 0, i <= steps, i++,
+               result = AppendTo[result, Exp[Log[start] + (Log[stop] - Log[start]) i / steps]];
+              ];
+           result
+          ];
+
 RunMhEFT[MS_, TB_, Xt_, mA_, Mu_, Mi_, M3_] :=
     Module[{gauginoM1 = Mi, gauginoM2 = Mi, gauginoM3 = M3,
             Ab = 0, Atau = 0, ytLo = 2, verbose = 0, mass, dmass = 0 },
