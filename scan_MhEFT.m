@@ -16,15 +16,17 @@ LogRange[start_, stop_, steps_] :=
 
 RunMhEFT[MS_, TB_, Xt_, mA_, Mu_, Mi_, M3_] :=
     Module[{gauginoM1 = Mi, gauginoM2 = Mi, gauginoM3 = M3,
-            Ab = 0, Atau = 0, ytLo = 2, verbose = 0, mass, dmass = 0 },
+            Ab = 0, Atau = 0, verbose = 0, mass2L, mass3L, dmass = 0 },
 
            SMobs = {Mt -> Mtpole, MW -> 80.384, MZ -> 91.1876, 
                     Mh -> 125.15, \[Alpha]3MZ -> alphaSAtMZ, 
                     V -> 246.21971, \[Delta]ytth -> 0, \[Delta]\[Lambda]th -> 0};
 
-           mass = mh /. evalMh[{MS,mA,TB,Xt,Ab,Atau,Mu,gauginoM1,gauginoM2,ytLo,verbose}][[2]];
+           mass2L = mh /. evalMh[{MS,mA,TB,Xt,Ab,Atau,Mu,gauginoM1,gauginoM2,2,verbose}][[2]];
+           mass3L = mh /. evalMh[{MS,mA,TB,Xt,Ab,Atau,Mu,gauginoM1,gauginoM2,3,verbose}][[2]];
+           dmass = Abs[mass2L - mass3L];
 
-           {mass, dmass}
+           {mass2L, dmass}
     ];
 
 RunMhEFT[MS_, TB_, Xt_, MA_] := RunMhEFT[MS, TB, Xt, MA, MS, MS, MS];
