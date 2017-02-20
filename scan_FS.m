@@ -528,7 +528,7 @@ RunSplitTHDMTHDMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
                    higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
                    higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
-                   forceOutput -> 1,                  (* FlexibleSUSY[12] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
                    topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
                    betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
                    forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
