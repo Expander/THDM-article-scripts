@@ -1358,7 +1358,47 @@ ScanSplitTHDMTHDMTowerMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MAs
 
 (* ScanSplitTHDMTHDMTowerMSMA[0, #, 2000]& /@ {2, 10, 20, 50}; *)
 
-
 (********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MS = [1000, 10^16], Xt = ? **********)
-(********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MA = [1000, 5000], Xt = ? **********)
-(********** THDM+split -> SM+split tower degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
+
+ScanSplitTHDMSplitTowerMSTB[Xt_, MA_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LogRange[MSstart, MSstop, steps], LinearRange[TBstart, TBstop, steps]}];
+           res = {N[#[[1]]], Mui, Mui, Mui, N[#[[2]]], MA, Xt,
+                  Sequence @@ RunTHDMSplitMSSM[Sequence @@ #, Xt, MA, Mui, Mui, Mui]}& /@ tuples;
+           Export["SplitTHDMSplitTower_TB_MS_Xt-" <> ToString[Xt] <> "_MA-" <> ToString[MA] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanSplitTHDMSplitTowerMSTB[0, 2000, 1000];
+ScanSplitTHDMSplitTowerMSTB[0, 5000, 1000];
+
+(********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MA = [2000, 10000], Xt = ? **********)
+
+ScanSplitTHDMSplitTowerTBMA[Xt_, MS_, Mui_, MAstart_:2000, MAstop_:10000, TBstart_:2, TBstop_:50, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[TBstart, TBstop, steps], LinearRange[MAstart, MAstop, steps]}];
+           res = {MS, Mui, Mui, Mui, Sequence @@ N[#], Xt,
+                  Sequence @@ RunTHDMSplitMSSM[MS, #[[1]], Xt, #[[2]], Mui, Mui, Mui]}& /@ tuples;
+           Export["SplitTHDMSplitTower_TB_MA_Xt-" <> ToString[Xt] <> "_MS-" <> ToString[MS] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanSplitTHDMSplitTowerTBMA[0, 5000, 1000];
+ScanSplitTHDMSplitTowerTBMA[0, 10^4, 1000];
+ScanSplitTHDMSplitTowerTBMA[0, 5 10^4, 1000];
+
+(********** THDM+split -> SM+split tower degenerate masses: MA = [2000, 10000], MS = [1000, 10^16], Xt = ? **********)
+
+ScanSplitTHDMSplitTowerMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MAstart_:2000, MAstop_:10000, steps_:60] :=
+    Module[{res, tuples},
+           tuples = Tuples[{LinearRange[MAstart, MAstop, steps], LogRange[MSstart, MSstop, steps]}];
+           res = {N[#[[2]]], Mui, Mui, Mui, TB, N[#[[1]]], Xt,
+                  Sequence @@ RunTHDMSplitMSSM[#[[2]], TB, Xt, #[[1]], Mui, Mui, Mui]}& /@ tuples;
+           Export["SplitTHDMSplitTower_MS_MA_Xt-" <> ToString[Xt] <> "_TB-" <> ToString[TB] <>
+                  "_Mu-M12-M3-" <> ToString[Mui] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanSplitTHDMSplitTowerMSMA[0, #, 1000]& /@ {2, 10, 20, 50};
