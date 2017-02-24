@@ -1051,9 +1051,9 @@ RunHGTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
 RunTHDMSplitTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                  Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ] :=
     Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
-           Mhyt1L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 1, 0, MS];
-           Mhyt2L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2, 0, MS];
-           Mhyt3L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3, 0, MS];
+           Mhyt1L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 1];
+           Mhyt2L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2];
+           Mhyt3L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3];
            DMh = RunSplitTHDMTHDMTowerUncertainties[MS, TB, Xt, MA, Mu, M12, M3, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
@@ -1062,9 +1062,9 @@ RunTHDMSplitTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
 RunTHDMSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                  Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ] :=
     Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
-           Mhyt1L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 1, 0, MS];
-           Mhyt2L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2, 0, MS];
-           Mhyt3L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3, 0, MS];
+           Mhyt1L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 1];
+           Mhyt2L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2];
+           Mhyt3L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3];
            DMh = RunSplitTHDMSplitTowerUncertainties[MS, TB, Xt, MA, Mu, M12, M3, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
