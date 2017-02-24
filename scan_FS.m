@@ -4,6 +4,7 @@ Get["models/SplitMSSM/SplitMSSM_librarylink.m"];
 Get["models/THDMIIMSSMBCFull/THDMIIMSSMBCFull_librarylink.m"];
 Get["models/HGTHDMIIMSSMBCFull/HGTHDMIIMSSMBCFull_librarylink.m"];
 Get["addons/SplitTHDMTHDMTower/SplitTHDMTHDMTower_librarylink.m"];
+Get["addons/SplitTHDMSplitTower/SplitTHDMSplitTower_librarylink.m"];
 Get["models/MSSMtower/MSSMtower_librarylink.m"];
 
 invalid;
@@ -580,6 +581,77 @@ RunSplitTHDMTHDMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            If[calcUncerts, uncerts, spectrum]
           ];
 
+RunSplitTHDMSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                       Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ,
+                       ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0, QDR_:0, calcUncerts_:False, eft_:0, yt_:0] :=
+    Module[{handle, spectrum, uncerts = {}, Qi = Qin, Qm = Qmat},
+           If[Qi === 0, Qi = MA];
+           If[Qm === 0, Qm = MA];
+           handle = FSSplitTHDMSplitTowerOpenHandle[
+               fsSettings -> {
+                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   maxIterations -> 100,              (* FlexibleSUSY[1] *)
+                   calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
+                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
+                   thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
+                   higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
+                   higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
+                   higgs2loopCorrectionAtAt -> 1,     (* FlexibleSUSY[10] *)
+                   higgs2loopCorrectionAtauAtau -> 1, (* FlexibleSUSY[11] *)
+                   forceOutput -> 0,                  (* FlexibleSUSY[12] *)
+                   topPoleQCDCorrections -> 1,        (* FlexibleSUSY[13] *)
+                   betaZeroThreshold -> 1.*^-11,      (* FlexibleSUSY[14] *)
+                   forcePositiveMasses -> 0,          (* FlexibleSUSY[16] *)
+                   poleMassScale -> Qpole,            (* FlexibleSUSY[17] *)
+                   eftPoleMassScale -> 0,             (* FlexibleSUSY[18] *)
+                   eftMatchingScale -> 0,             (* FlexibleSUSY[19] *)
+                   eftMatchingLoopOrderUp -> 0,       (* FlexibleSUSY[20] *)
+                   eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
+                   eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
+                   calculateBSMMasses -> 1,           (* FlexibleSUSY[23] *)
+                   parameterOutputScale -> QDR        (* MODSEL[12] *)
+               },
+               fsSMParameters -> SMParameters,
+               fsModelParameters -> {
+                   TanBeta -> TB,
+                   MSUSY -> MS,
+                   MEWSB -> Mtpole,
+                   MuInput -> Mu,
+                   M1Input -> M12,
+                   M2Input -> M12,
+                   M3Input -> M3,
+                   MAInput -> MA,
+                   Qinput -> Qi,
+                   Qmatch -> Qm,
+                   LambdaLoopOrder -> 2,
+                   DeltaAlphaS -> sigmaAlphaS,
+                   DeltaMTopPole -> sigmaMt,
+                   DeltaEFT -> eft,
+                   DeltaYt -> yt,
+                   AeInput -> 0 MS TB IdentityMatrix[3],
+                   AdInput -> 0 MS TB IdentityMatrix[3],
+                   AuInput -> {
+                       {0, 0, 0            },
+                       {0, 0, 0            },
+                       {0, 0, Mu/TB + Xt MS}
+                   },
+                   msqInput -> MS {1,1,1},
+                   msuInput -> MS {1,1,1},
+                   msdInput -> MS {1,1,1},
+                   mslInput -> MS {1,1,1},
+                   mseInput -> MS {1,1,1}
+               }
+           ];
+           If[calcUncerts,
+              uncerts = FSSplitTHDMSplitTowerCalculateUncertainties[handle];,
+              spectrum = FSSplitTHDMSplitTowerCalculateSpectrum[handle];
+             ];
+           FSSplitTHDMSplitTowerCloseHandle[handle];
+           If[calcUncerts, uncerts, spectrum]
+          ];
+
 RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
              ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, yt_:2] :=
     Module[{handle, spectrum, uncerts = {}},
@@ -710,6 +782,14 @@ RunHGTHDMIIMSSMBCFullMh[args__] :=
 
 RunSplitTHDMTHDMTowerMh[args__] :=
     Module[{spec = RunSplitTHDMTHDMTower[args]},
+           If[spec === $Failed,
+              invalid,
+              GetPar[spec, Pole[M[hh]][1]]
+             ]
+          ];
+
+RunSplitTHDMSplitTowerMh[args__] :=
+    Module[{spec = RunSplitTHDMSplitTower[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]][1]]
@@ -866,6 +946,29 @@ RunSplitTHDMTHDMTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_
              ]
           ];
 
+RunSplitTHDMSplitTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                                   Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ,
+                                   ytLoops_:2, Qpole_:0, Qin_:0, Qmat_:0, QDR_:0] :=
+    Module[{uncerts, MhEFT, MhYt},
+           uncerts = RunSplitTHDMSplitTower[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, Qin, Qmat, QDR, True];
+           (* with extra terms ~ v^2/MS^2 *)
+           MhEFT = GetPar[RunSplitTHDMSplitTower[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, Qin, Qmat, QDR, False, 1, 0], Pole[M[hh]][1]];
+           MhYt  = GetPar[RunSplitTHDMSplitTower[MS, TB, Xt, MA, Mu, M12, M3, ytLoops, Qpole, Qin, Qmat, QDR, False, 0, 1], Pole[M[hh]][1]];
+           If[uncerts === $Failed,
+              { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
+              {
+                  (Pole[M[hh]] /. (MIN /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (SUSYScale /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (AlphaSInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MIN /. (MTopPoleInput /. uncerts)))[[1]],
+                  (Pole[M[hh]] /. (MAX /. (MTopPoleInput /. uncerts)))[[1]],
+                  MhEFT,
+                  MhYt
+              }
+             ]
+          ];
+
 RunMSSMtowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                           ytLoops_:2, Qpole_:0, QDR_:0] :=
     Module[{uncerts, MhEFT},
@@ -952,6 +1055,17 @@ RunTHDMSplitTHDM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            Mhyt2L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2, 0, MS];
            Mhyt3L = RunSplitTHDMTHDMTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3, 0, MS];
            DMh = RunSplitTHDMTHDMTowerUncertainties[MS, TB, Xt, MA, Mu, M12, M3, 2];
+           (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
+           {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
+          ];
+
+RunTHDMSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
+                 Mu_?NumericQ, M12_?NumericQ, M3_?NumericQ] :=
+    Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
+           Mhyt1L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 1, 0, MS];
+           Mhyt2L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 2, 0, MS];
+           Mhyt3L = RunSplitTHDMSplitTowerMh[MS, TB, Xt, MA, Mu, M12, M3, 3, 0, MS];
+           DMh = RunSplitTHDMSplitTowerUncertainties[MS, TB, Xt, MA, Mu, M12, M3, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
@@ -1243,3 +1357,8 @@ ScanSplitTHDMTHDMTowerMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MAs
           ];
 
 (* ScanSplitTHDMTHDMTowerMSMA[0, #, 2000]& /@ {2, 10, 20, 50}; *)
+
+
+(********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MS = [1000, 10^16], Xt = ? **********)
+(********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MA = [1000, 5000], Xt = ? **********)
+(********** THDM+split -> SM+split tower degenerate masses: MA = [100, 500], MS = [1000, 10^16], Xt = ? **********)
