@@ -136,14 +136,14 @@ ScanHGMhEFTMSTB[N@Sqrt[6], 5000, 1000];
 
 (********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MA = [2000, 10000], Xt = ? **********)
 
-ScanHGMhEFTTBMA[0, 5000, 1000];
-ScanHGMhEFTTBMA[0, 10^4, 1000];
-ScanHGMhEFTTBMA[0, 5 10^4, 1000];
-ScanHGMhEFTTBMA[N@Sqrt[6], 5000, 1000];
-ScanHGMhEFTTBMA[N@Sqrt[6], 10^4, 1000];
-ScanHGMhEFTTBMA[N@Sqrt[6], 5 10^4, 1000];
+ScanHGMhEFTTBMA[0, 5000, 1000, 2000, 10000];
+ScanHGMhEFTTBMA[0, 10^4, 1000, 2000, 10000];
+ScanHGMhEFTTBMA[0, 5 10^4, 1000, 2000, 10000];
+ScanHGMhEFTTBMA[N@Sqrt[6], 5000, 1000, 2000, 10000];
+ScanHGMhEFTTBMA[N@Sqrt[6], 10^4, 1000, 2000, 10000];
+ScanHGMhEFTTBMA[N@Sqrt[6], 5 10^4, 1000, 2000, 10000];
 
 (********** THDM+split -> SM+split tower degenerate masses: MA = [2000, 10000], MS = [1000, 10^16], Xt = ? **********)
 
-ScanHGMhEFTMSMA[0, #, 1000]& /@ {2, 10, 20, 50};
-ScanHGMhEFTMSMA[N@Sqrt[6], #, 1000]& /@ {2, 10, 20, 50};
+ScanHGMhEFTMSMA[0, #, 1000, 1000, 1.0 10^16, 2000, 10000]& /@ {2, 10, 20, 50};
+ScanHGMhEFTMSMA[N@Sqrt[6], #, 1000, 1000, 1.0 10^16, 2000, 10000]& /@ {2, 10, 20, 50};
