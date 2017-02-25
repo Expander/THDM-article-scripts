@@ -1370,8 +1370,8 @@ ScanSplitTHDMSplitTowerMSTB[Xt_, MA_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, TB
            res
           ];
 
-ScanSplitTHDMSplitTowerMSTB[0, 2000, 1000];
-ScanSplitTHDMSplitTowerMSTB[0, 5000, 1000];
+(* ScanSplitTHDMSplitTowerMSTB[0, 2000, 1000]; *)
+(* ScanSplitTHDMSplitTowerMSTB[0, 5000, 1000]; *)
 
 (********** THDM+split -> SM+split tower degenerate masses: TB = [2,50], MA = [2000, 10000], Xt = ? **********)
 
@@ -1385,9 +1385,9 @@ ScanSplitTHDMSplitTowerTBMA[Xt_, MS_, Mui_, MAstart_:2000, MAstop_:10000, TBstar
            res
           ];
 
-ScanSplitTHDMSplitTowerTBMA[0, 5000, 1000];
-ScanSplitTHDMSplitTowerTBMA[0, 10^4, 1000];
-ScanSplitTHDMSplitTowerTBMA[0, 5 10^4, 1000];
+(* ScanSplitTHDMSplitTowerTBMA[0, 5000, 1000]; *)
+(* ScanSplitTHDMSplitTowerTBMA[0, 10^4, 1000]; *)
+(* ScanSplitTHDMSplitTowerTBMA[0, 5 10^4, 1000]; *)
 
 (********** THDM+split -> SM+split tower degenerate masses: MA = [2000, 10000], MS = [1000, 10^16], Xt = ? **********)
 
@@ -1401,4 +1401,4 @@ ScanSplitTHDMSplitTowerMSMA[Xt_, TB_, Mui_, MSstart_:1000, MSstop_:1.0 10^16, MA
            res
           ];
 
-ScanSplitTHDMSplitTowerMSMA[0, #, 1000]& /@ {2, 10, 20, 50};
+(* ScanSplitTHDMSplitTowerMSMA[0, #, 1000]& /@ {2, 10, 20, 50}; *)
