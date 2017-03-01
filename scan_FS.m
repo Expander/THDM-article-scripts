@@ -1174,19 +1174,7 @@ ScanSplitMSSMMi[TB_, Xt_, MS_, M3fac_, start_:500, stop_:3000, steps_:60] :=
 
 HSSUSYDegVary[MS_, TB_, Xt_] :=
     Module[{data, tuples},
-           tuples = Tuples[{
-               {MS/3, 3 MS}, (* MQ *)
-               {MS/3, 3 MS}, (* MQ3 *)
-               {MS/3, 3 MS}, (* MU *)
-               {MS/3, 3 MS}, (* MU3 *)
-               {MS/3, 3 MS}, (* MD *)
-               {MS/3, 3 MS}, (* ML *)
-               {MS/3, 3 MS}, (* ME *)
-               {MS/3, 3 MS}, (* Mi *)
-               {MS/2, 2 MS}, (* M3 *)
-               {MS/3, 3 MS}, (* Mu *)
-               {MS/3, 3 MS}  (* mA *)
-           }];
+           tuples = Tuples[{MS/2, 2 MS}, 11];
            data = RunHSSUSYDegMh[MS, TB, Xt, Sequence @@ #]& /@ tuples;
            {MS, TB, Xt, Sequence @@ MinMax[data]}
           ];
@@ -1206,14 +1194,14 @@ SplitMSSMDegVary[MS_, TB_, Xt_, Mlow_] :=
     Module[{data, tuples},
            tuples = Tuples[{
                {Mlow/2, 2 Mlow}, (* Mi = M3 = Mu *)
-               {MS/3, 3 MS}, (* MQ *)
-               {MS/3, 3 MS}, (* MQ3 *)
-               {MS/3, 3 MS}, (* MU *)
-               {MS/3, 3 MS}, (* MU3 *)
-               {MS/3, 3 MS}, (* MD *)
-               {MS/3, 3 MS}, (* ML *)
-               {MS/3, 3 MS}, (* ME *)
-               {MS/3, 3 MS}  (* mA *)
+               {MS/2, 2 MS}, (* MQ *)
+               {MS/2, 2 MS}, (* MQ3 *)
+               {MS/2, 2 MS}, (* MU *)
+               {MS/2, 2 MS}, (* MU3 *)
+               {MS/2, 2 MS}, (* MD *)
+               {MS/2, 2 MS}, (* ML *)
+               {MS/2, 2 MS}, (* ME *)
+               {MS/2, 2 MS}  (* mA *)
            }];
            data = RunSplitMSSMDegMh[MS, TB, Xt, Sequence @@ #]& /@ tuples;
            {MS, TB, Xt, Sequence @@ MinMax[data]}
