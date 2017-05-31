@@ -13,6 +13,7 @@ UsedMi=MS
 parameter=MS
 
 BASEDIR=$(dirname $0)
+FHdir="/undefined/FeynHiggs/directory"
 
 run_fh() {
     local fh_dir="$1"
@@ -27,6 +28,7 @@ if test $# -gt 0 ; then
         esac
 
         case $1 in
+            --FH-dir=*)              FHdir=$optarg ;;
             --parameter=*)           parameter=$optarg ;;
             --start=*)               start=$optarg ;;
             --stop=*)                stop=$optarg ;;
@@ -73,7 +75,7 @@ EOF
         Mi="$UsedMi"
     fi
 
-    FHout=$(run_fh "${HOME}/packages/FeynHiggs-2.12.2/build")
+    FHout=$(run_fh "$FHdir")
     MhFH=$(echo "$FHout" | awk '{ print $1 }')
     DeltaMhFH=$(echo "$FHout" | awk '{ print $2 }')
 
