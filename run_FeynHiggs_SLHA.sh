@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if [ $# -ne 5 ] ; then
-    echo "Error: 5 Arguments required!"
-    echo "  $0 <FH-dir> <MS> <tan(beta)> <Xt> <Mi>"
+if [ $# -ne 6 ] ; then
+    echo "Error: 6 Arguments required!"
+    echo "  $0 <FH-dir> <MS> <tan(beta)> <Xt> <Mi> <looplevel>"
     exit 1
 fi
 
@@ -15,6 +15,8 @@ shift
 Xt="$1"
 shift
 Mi="$1"
+shift
+looplevel="$1"
 
 fh="${fh_dir}/FeynHiggs"
 fh_in=fh.in
@@ -126,7 +128,7 @@ rm -f "${fh_out}"
 Mh=
 DMh=
 
-${fh} "${fh_in}" 4002023110 >/dev/null 2>&1
+${fh} "${fh_in}" 40020${looplevel}3110 >/dev/null 2>&1
 
 if [ -e "${fh_out}" ] ; then
     Mh=$(awk -v block=MASS "${print_slha_block_awk}" "${fh_out}" | \

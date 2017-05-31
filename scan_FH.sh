@@ -14,10 +14,12 @@ parameter=MS
 
 BASEDIR=$(dirname $0)
 FHdir="/undefined/FeynHiggs/directory"
+FHlooplevel=2
 
 run_fh() {
     local fh_dir="$1"
-    ${BASEDIR}/run_FeynHiggs_2.12.0_SLHA.sh "$fh_dir" "${MS}" "${TB}" "${Xt}" "${Mi}"
+    ${BASEDIR}/run_FeynHiggs_SLHA.sh "$fh_dir" \
+              "${MS}" "${TB}" "${Xt}" "${Mi}" "${FHlooplevel}"
 }
 
 if test $# -gt 0 ; then
@@ -75,9 +77,15 @@ EOF
         Mi="$UsedMi"
     fi
 
+    FHlooplevel=2
     FHout=$(run_fh "$FHdir")
     MhFH=$(echo "$FHout" | awk '{ print $1 }')
     DeltaMhFH=$(echo "$FHout" | awk '{ print $2 }')
 
-    printf "%16s %16s %16s\n" "$value" "$MhFH" "$DeltaMhFH"
+    FHlooplevel=0
+    FHout=$(run_fh "$FHdir")
+    MhFHEFT=$(echo "$FHout" | awk '{ print $1 }')
+    DeltaMhFHEFT=$(echo "$FHout" | awk '{ print $2 }')
+
+    printf "%16s %16s %16s %16s %16s\n" "$value" "$MhFH" "$DeltaMhFH" "$MhFHEFT" "$DeltaMhFHEFT"
 done
