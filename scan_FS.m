@@ -1087,6 +1087,55 @@ MSstop  = 1.0 10^16;
 Xtstart = -3.5;
 Xtstop  = 3.5;
 
+(********** THDM uncertainty plot ***********)
+
+FindTHDMPointForMh[Mh_, MS_, TBfix_, Xtfix_, MA_] :=
+    Module[{point, xt = Xtfix, tb = TBfix, digits = 4, prec = 0.1, mh, F},
+           F[xMS_?NumericQ, xTB_?NumericQ, xXt_?NumericQ, xMA_?NumericQ] :=
+              Module[{xres},
+                     xres = RunTHDMIIMSSMBCFullMh[xMS, xTB, xXt, xMA];
+                     If[xres === invalid, 1000, xres]
+                    ];
+           If[!FSUncertaintyFirstRunDone,
+              point = FindRoot[F[MS, TBfix, x, MA] == Mh, {x, 1}, AccuracyGoal -> digits, PrecisionGoal -> digits];
+              xt = x /. point;
+              If[point === {} || Abs[F[MS, TBfix, xt, MA] - Mh] > prec,
+                 FSUncertaintyFirstRunDone = True;
+                 (* Print["Problem: Mh = ", F[MS, TBfix, xt, MA], " for xt = ", xt, " TB = ", TBfix]; *)
+                 Return[{ TB -> tb, Xt -> xt }];
+                ];
+             ];
+           If[FSUncertaintyFirstRunDone,
+              point = FindRoot[F[MS, t, Xtfix, MA] == Mh, {t, 2}, AccuracyGoal -> digits, PrecisionGoal -> digits];
+              tb = t /. point;
+              If[point === {} || Abs[F[MS, tb, Xtfix, MA] - Mh] > prec,
+                 (* Print["   Problem: Mh = ", F[MS, tb, Xtfix, MA], " for xt = ", Xtfix, " TB = ", tb]; *)
+                 tb = invalid
+                ]
+             ];
+           { TB -> tb, Xt -> xt }
+          ];
+
+RunTHDMOverContourMh[Mh_, MS_, TBfix_, Xtfix_, MA_] :=
+    Module[{point},
+           point = FindTHDMPointForMh[Mh, MS, TBfix, Xtfix, MA];
+           Print[{N[MS], point}];
+           { MS, TB /. point, Xt /. point, MA, Sequence @@ RunTHDM[MS, TB /. point, Xt /. point, MA] }
+          ];
+
+FSUncertaintyFirstRunDone = False;
+
+ScanTHDMUncertainty[TBfix_, Xtfix_, MA_, start_:2000, stop_:1.0 10^16, steps_:500] :=
+    Module[{res},
+           Off[FindRoot::lstol];
+           Off[FSTHDMIIMSSMBCFullCalculateSpectrum::error];
+           res =  RunTHDMOverContourMh[125, N[#], TBfix, Xtfix, MA]& /@ LogRange[start, stop, steps];
+           Export["THDMIIMSSMBCFull_uncertainty_MS_MA-" <> ToString[MA] <> ".dat", res, "Table"];
+           res
+          ];
+
+ScanTHDMUncertainty[20, 0, 800]
+
 (********** HSSUSY scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
 ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
