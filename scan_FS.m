@@ -1146,6 +1146,7 @@ ScanHSSUSYMS[TB_, Xt_, start_:500, stop_:1.0 10^16, steps_:60] :=
           ];
 
 (* ScanHSSUSYMS[#, N@Sqrt[6]]& /@ {2, 10, 20, 50} *)
+(* ScanHSSUSYMS[#, N@Sqrt[6], 500, 1.0 10^4]& /@ {2, 10, 20, 50} *)
 
 (********** HSSUSY scenario 2: TB = 2, MS = 2 TeV **********)
 
