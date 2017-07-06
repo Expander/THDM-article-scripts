@@ -1134,7 +1134,7 @@ ScanTHDMUncertainty[TBfix_, Xtfix_, MA_, start_:2000, stop_:1.0 10^16, steps_:50
            res
           ];
 
-ScanTHDMUncertainty[20, 0, 800]
+(* ScanTHDMUncertainty[20, 0, 800] *)
 
 (********** HSSUSY scenario 1: TB = 2, 10, 20, 50, Xt = Sqrt[6] **********)
 
@@ -1191,6 +1191,7 @@ ScanSplitMSSMTowerMS[TB_, Xt_, Mi_, start_:500, stop_:1.0 10^16, steps_:60] :=
           ];
 
 (* ScanSplitMSSMTowerMS[#, N@Sqrt[6], 2000]& /@ {2, 10, 20, 50} *)
+ScanSplitMSSMTowerMS[#, N@Sqrt[6], 2000, 500, 1.0 10^4]& /@ {2, 10, 20, 50}
 
 (********** SplitMSSMTower scenario 2: TB = 10, MS = 5 TeV **********)
 
