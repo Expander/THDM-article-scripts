@@ -1089,20 +1089,53 @@ Xtstop  = 3.5;
 
 (********** THDM uncertainty plot ***********)
 
+CombineTHDMUncertainties[{_, Mh2L_?NumericQ, Mh3L_?NumericQ,
+                          QpoleMin_?NumericQ, QpoleMax_?NumericQ,
+                          ASMin_?NumericQ, ASMax_?NumericQ,
+                          MTMin_?NumericQ, MTMax_?NumericQ,
+                          MhEFT_?NumericQ, MhYt_?NumericQ}] :=
+    (
+        + Abs[Mh2L - Mh3L]
+        + Max[Abs[Mh2L - QpoleMin], Abs[Mh2L - QpoleMax]]
+        + Abs[ASMin - ASMax]
+        + Abs[MTMin - MTMax]
+        + Abs[Mh2L - MhYt]
+        + Abs[Mh2L - MhEFT]
+    );
+
+RunTHDMIIMSSMBCFullMhDMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ] :=
+    Module[{spec, mh, dmh},
+           spec = RunTHDM[MS, TB, Xt, MA];
+           If[spec === invalid, Return[invalid]];
+           mh = spec[[2]];
+           dmh = CombineTHDMUncertainties[spec];
+           { mh, dmh }
+          ];
+
 FindTHDMPointForMh[Mh_, MS_, TBfix_, Xtfix_, MA_] :=
-    Module[{point, xt = Xtfix, tb = TBfix, digits = 4, prec = 0.1, mh, F},
+    Module[{point, xt = Xtfix, tb = TBfix, digits = 4, prec = 0.1, mh, dmh, F, DF, excl = 0},
            F[xMS_?NumericQ, xTB_?NumericQ, xXt_?NumericQ, xMA_?NumericQ] :=
               Module[{xres},
-                     xres = RunTHDMIIMSSMBCFullMh[xMS, xTB, xXt, xMA];
-                     If[xres === invalid, 1000, xres]
+                     xres = RunTHDMIIMSSMBCFullMhDMh[xMS, xTB, xXt, xMA];
+                     If[xres === invalid, 1000, First[xres]]
+                    ];
+           DF[xMS_?NumericQ, xTB_?NumericQ, xXt_?NumericQ, xMA_?NumericQ] :=
+              Module[{xres},
+                     xres = RunTHDMIIMSSMBCFullMhDMh[xMS, xTB, xXt, xMA];
+                     If[xres === invalid, 0, Last[xres]]
                     ];
            If[!FSUncertaintyFirstRunDone,
               point = FindRoot[F[MS, TBfix, x, MA] == Mh, {x, 1}, AccuracyGoal -> digits, PrecisionGoal -> digits];
               xt = x /. point;
               If[point === {} || Abs[F[MS, TBfix, xt, MA] - Mh] > prec,
-                 FSUncertaintyFirstRunDone = True;
+                 mh  =  F[MS, TBfix, xt, MA];
+                 dmh = DF[MS, TBfix, xt, MA];
+                 If[mh < Mh && mh + dmh > Mh,
+                    excl = 1,
+                    FSUncertaintyFirstRunDone = True
+                   ];
                  (* Print["Problem: Mh = ", F[MS, TBfix, xt, MA], " for xt = ", xt, " TB = ", TBfix]; *)
-                 Return[{ TB -> tb, Xt -> xt }];
+                 Return[{ TB -> tb, Xt -> xt, excluded -> excl }];
                 ];
              ];
            If[FSUncertaintyFirstRunDone,
@@ -1113,22 +1146,21 @@ FindTHDMPointForMh[Mh_, MS_, TBfix_, Xtfix_, MA_] :=
                  tb = invalid
                 ]
              ];
-           { TB -> tb, Xt -> xt }
+           { TB -> tb, Xt -> xt, excluded -> excl }
           ];
 
 RunTHDMOverContourMh[Mh_, MS_, TBfix_, Xtfix_, MA_] :=
     Module[{point},
            point = FindTHDMPointForMh[Mh, MS, TBfix, Xtfix, MA];
            Print[{N[MS], point}];
-           { MS, TB /. point, Xt /. point, MA, Sequence @@ RunTHDM[MS, TB /. point, Xt /. point, MA] }
+           { MS, TB /. point, Xt /. point, MA, Sequence @@ RunTHDM[MS, TB /. point, Xt /. point, MA], excluded /. point }
           ];
 
-FSUncertaintyFirstRunDone = False;
-
-ScanTHDMUncertainty[TBfix_, Xtfix_, MA_, start_:2000, stop_:1.0 10^16, steps_:500] :=
+ScanTHDMUncertainty[TBfix_, Xtfix_, MA_, start_:200, stop_:1.0 10^16, steps_:500] :=
     Module[{res},
            Off[FindRoot::lstol];
            Off[FSTHDMIIMSSMBCFullCalculateSpectrum::error];
+           FSUncertaintyFirstRunDone = False;
            res =  RunTHDMOverContourMh[125, N[#], TBfix, Xtfix, MA]& /@ LogRange[start, stop, steps];
            Export["THDMIIMSSMBCFull_uncertainty_MS_MA-" <> ToString[MA] <> ".dat", res, "Table"];
            res
