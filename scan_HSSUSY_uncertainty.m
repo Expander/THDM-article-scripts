@@ -4,7 +4,7 @@ Get["model_files/HSSUSY/HSSUSY_uncertainty_estimate.m"];
 Mtpole = 173.34;
 AS = 0.1184;
 
-CalcDMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
+CalcDMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MG_?NumericQ] :=
     CalcHSSUSYDMh[
         fsSettings -> {
             precisionGoal -> 1.*^-5,
@@ -20,7 +20,7 @@ CalcDMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
             MSUSY -> MS,
             M1Input -> MS,
             M2Input -> MS,
-            M3Input -> MS,
+            M3Input -> MG,
             MuInput -> MS,
             mAInput -> MS,
             AtInput -> (Xt + 1/TB) * MS,
@@ -42,7 +42,7 @@ CalcDMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
         }
    ];
 
-CalcMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mtp_:Mtpole, as_:AS] :=
+CalcMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MG_?NumericQ, Mtp_:Mtpole, as_:AS] :=
     Module[{handle, spec},
            handle = FSHSSUSYOpenHandle[
                fsSettings -> {
@@ -60,7 +60,7 @@ CalcMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mtp_:Mtpole, as_:AS] :=
                    MSUSY -> MS,
                    M1Input -> MS,
                    M2Input -> MS,
-                   M3Input -> MS,
+                   M3Input -> MG,
                    MuInput -> MS,
                    mAInput -> MS,
                    AtInput -> (Xt + 1/TB) * MS,
@@ -87,42 +87,42 @@ CalcMh[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mtp_:Mtpole, as_:AS] :=
               Pole[M[hh]] /. (HSSUSY /. spec)]
     ];
 
-CalcDMhParam[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
+CalcDMhParam[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MG_?NumericQ] :=
     Module[{Mh, MhMtp, MhMtm, MhASp, MhASm},
-           Mh    = CalcMh[MS, TB, Xt];
-           MhMtp = CalcMh[MS, TB, Xt, Mtpole + 0.98];
-           MhMtm = CalcMh[MS, TB, Xt, Mtpole - 0.98];
-           MhASp = CalcMh[MS, TB, Xt, Mtpole, AS + 6 10^-4];
-           MhASm = CalcMh[MS, TB, Xt, Mtpole, AS - 6 10^-4];
+           Mh    = CalcMh[MS, TB, Xt, MG];
+           MhMtp = CalcMh[MS, TB, Xt, MG, Mtpole + 0.98];
+           MhMtm = CalcMh[MS, TB, Xt, MG, Mtpole - 0.98];
+           MhASp = CalcMh[MS, TB, Xt, MG, Mtpole, AS + 6 10^-4];
+           MhASm = CalcMh[MS, TB, Xt, MG, Mtpole, AS - 6 10^-4];
            (
                Abs[Max[{Mh, MhMtp, MhMtm}] - Min[{Mh, MhMtp, MhMtm}]] +
                Abs[Max[{Mh, MhASp, MhASm}] - Min[{Mh, MhASp, MhASm}]]
            ) / 2
           ];
 
-CalcDMhFixedTB[MS_, TB_, Xt_, Mh_] :=
+CalcDMhFixedTB[MS_, TB_, Xt_, MG_, Mh_] :=
     Module[{xt, point},
-           point = FindRoot[CalcMh[MS,TB,xt] == Mh, {xt, 1, 0, Xt},
+           point = FindRoot[CalcMh[MS,TB,xt,MG] == Mh, {xt, 1, 0, Xt},
                             AccuracyGoal -> 4, PrecisionGoal -> 4];
            xt = If[point =!= {}, xt /. point, Xt];
            xt = If[NumericQ[xt], xt, Xt];
-           { MS, TB, xt, Sequence @@ CalcDMh[MS, TB, xt], CalcDMhParam[MS, TB, xt] }
+           { MS, TB, xt, Sequence @@ CalcDMh[MS, TB, xt, MG], CalcDMhParam[MS, TB, xt, MG] }
           ];
 
-CalcDMhFixedXt[MS_, TB_, Xt_, Mh_] :=
+CalcDMhFixedXt[MS_, TB_, Xt_, MG_, Mh_] :=
     Module[{tb, point},
-           point = FindRoot[CalcMh[MS,tb,Xt] == Mh, {tb, 2, 1, TB},
+           point = FindRoot[CalcMh[MS,tb,Xt,MG] == Mh, {tb, 2, 1, TB},
                             AccuracyGoal -> 4, PrecisionGoal -> 4];
            tb = If[point =!= {}, tb /. point, TB];
            tb = If[NumericQ[tb], tb, TB];
-           { MS, tb, Xt, Sequence @@ CalcDMh[MS, tb, Xt], CalcDMhParam[MS, tb, Xt]}
+           { MS, tb, Xt, Sequence @@ CalcDMh[MS, tb, Xt, MG], CalcDMhParam[MS, tb, Xt, MG]}
           ];
 
 LaunchKernels[];
 DistributeDefinitions[CalcDMhFixedTB, CalcDMhFixedXt];
 
-dataXt = ParallelMap[CalcDMhFixedTB[N[#], 20, N[Sqrt[6]], 125]&, LogRange[1000  , 2 10^4, 60]];
-dataTB = ParallelMap[CalcDMhFixedXt[N[#], 20,          0, 125]&, LogRange[2 10^4, 10^10 , 60]];
+dataXt = ParallelMap[CalcDMhFixedTB[N[#], 20, N[Sqrt[6]], N[#], 125]&, LogRange[1000  , 2 10^4, 60]];
+dataTB = ParallelMap[CalcDMhFixedXt[N[#], 20,          0, N[#], 125]&, LogRange[2 10^4, 10^10 , 60]];
 
 Export["HSSUSY_uncertainty_plot_vary_Xt.dat", dataXt];
 Export["HSSUSY_uncertainty_plot_vary_TB.dat", dataTB];
