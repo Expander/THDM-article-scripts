@@ -127,3 +127,10 @@ dataTB = ParallelMap[CalcDMhFixedXt[N[#], 20,          0, N[#], 125]&, LogRange[
 Export["HSSUSY_uncertainty_plot_vary_Xt.dat", dataXt];
 Export["HSSUSY_uncertainty_plot_vary_TB.dat", dataTB];
 Export["HSSUSY_uncertainty_plot.dat", Join[dataXt, dataTB]];
+
+dataXt = ParallelMap[CalcDMhFixedTB[N[#], 20, N[Sqrt[6]], N[2 #], 125]&, LogRange[1000  , 2 10^4, 60]];
+dataTB = ParallelMap[CalcDMhFixedXt[N[#], 20,          0, N[2 #], 125]&, LogRange[2 10^4, 10^10 , 60]];
+
+Export["HSSUSY_uncertainty_plot_vary_Xt_MG-2MS.dat", dataXt];
+Export["HSSUSY_uncertainty_plot_vary_TB_MG-2MS.dat", dataTB];
+Export["HSSUSY_uncertainty_plot_MG-2MS.dat", Join[dataXt, dataTB]];
