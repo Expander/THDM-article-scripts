@@ -5,7 +5,7 @@ Get["models/THDMIIMSSMBCFull/THDMIIMSSMBCFull_librarylink.m"];
 Get["models/HGTHDMIIMSSMBCFull/HGTHDMIIMSSMBCFull_librarylink.m"];
 Get["addons/SplitTHDMTHDMTower/SplitTHDMTHDMTower_librarylink.m"];
 Get["addons/SplitTHDMSplitTower/SplitTHDMSplitTower_librarylink.m"];
-Get["models/MSSMtower/MSSMtower_librarylink.m"];
+Get["models/MSSMEFTHiggs/MSSMEFTHiggs_librarylink.m"];
 
 invalid;
 Mtpole = 173.21;
@@ -652,10 +652,10 @@ RunSplitTHDMSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            If[calcUncerts, uncerts, spectrum]
           ];
 
-RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
+RunMSSMEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
              ytLoops_:2, Qpole_:0, QDR_:0, calcUncerts_:False, yt_:2] :=
     Module[{handle, spectrum, uncerts = {}},
-           handle = FSMSSMtowerOpenHandle[
+           handle = FSMSSMEFTHiggsOpenHandle[
                fsSettings -> {
                    precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
@@ -708,10 +708,10 @@ RunMSSMtower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                }
            ];
            If[calcUncerts,
-              uncerts = FSMSSMtowerCalculateUncertainties[handle];,
-              spectrum = FSMSSMtowerCalculateSpectrum[handle];
+              uncerts = FSMSSMEFTHiggsCalculateUncertainties[handle];,
+              spectrum = FSMSSMEFTHiggsCalculateSpectrum[handle];
              ];
-           FSMSSMtowerCloseHandle[handle];
+           FSMSSMEFTHiggsCloseHandle[handle];
            If[calcUncerts, uncerts, spectrum]
           ];
 
@@ -796,16 +796,16 @@ RunSplitTHDMSplitTowerMh[args__] :=
              ]
           ];
 
-RunMSSMtowerMh[args__] :=
-    Module[{spec = RunMSSMtower[args]},
+RunMSSMEFTHiggsMh[args__] :=
+    Module[{spec = RunMSSMEFTHiggs[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]][1]]
              ]
           ];
 
-RunMSSMtowerDegMh[args__] :=
-    Module[{spec = RunMSSMtowerDeg[args]},
+RunMSSMEFTHiggsDegMh[args__] :=
+    Module[{spec = RunMSSMEFTHiggsDeg[args]},
            If[spec === $Failed,
               invalid,
               GetPar[spec, Pole[M[hh]][1]]
@@ -969,12 +969,12 @@ RunSplitTHDMSplitTowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA
              ]
           ];
 
-RunMSSMtowerUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
+RunMSSMEFTHiggsUncertainties[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                           ytLoops_:2, Qpole_:0, QDR_:0] :=
     Module[{uncerts, MhEFT},
-           uncerts = RunMSSMtower[MS, TB, Xt, ytLoops, Qpole, QDR, True];
+           uncerts = RunMSSMEFTHiggs[MS, TB, Xt, ytLoops, Qpole, QDR, True];
            (* with extra terms ~ v^2/MS^2 *)
-           MhYt  = GetPar[RunMSSMtower[MS, TB, Xt, ytLoops, Qpole, QDR, False, 0], Pole[M[hh]][1]];
+           MhYt  = GetPar[RunMSSMEFTHiggs[MS, TB, Xt, ytLoops, Qpole, QDR, False, 0], Pole[M[hh]][1]];
            If[uncerts === $Failed,
               { invalid, invalid, invalid, invalid, invalid, invalid, MhEFT, MhYt },
               {
@@ -1072,10 +1072,10 @@ RunTHDMSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
 
 RunFSEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ] :=
     Module[{Mhyt1L, Mhyt2L, Mhyt3L, DMh},
-           Mhyt1L = RunMSSMtowerMh[MS, TB, Xt, 1, 0, MS];
-           Mhyt2L = RunMSSMtowerMh[MS, TB, Xt, 2, 0, MS];
-           Mhyt3L = RunMSSMtowerMh[MS, TB, Xt, 3, 0, MS];
-           DMh = RunMSSMtowerUncertainties[MS, TB, Xt, 2];
+           Mhyt1L = RunMSSMEFTHiggsMh[MS, TB, Xt, 1, 0, MS];
+           Mhyt2L = RunMSSMEFTHiggsMh[MS, TB, Xt, 2, 0, MS];
+           Mhyt3L = RunMSSMEFTHiggsMh[MS, TB, Xt, 3, 0, MS];
+           DMh = RunMSSMEFTHiggsUncertainties[MS, TB, Xt, 2];
            (* Mhyt1L, Mhyt2L, Mhyt3L, min DMh^Qpole, max DMh^Qpole *)
            {Mhyt1L, Mhyt2L, Mhyt3L, Sequence @@ DMh}
           ];
