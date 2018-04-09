@@ -88,6 +88,13 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
                    eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
                    calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
+                   thresholdCorrections -> 123111321, (* FlexibleSUSY[24] *)
+                   higgs3loopCorrectionRenScheme -> 0,(* FlexibleSUSY[25] *)
+                   higgs3loopCorrectionAtAsAs -> 1,   (* FlexibleSUSY[26] *)
+                   higgs3loopCorrectionAbAsAs -> 1,   (* FlexibleSUSY[27] *)
+                   higgs3loopCorrectionAtAtAs -> 1,   (* FlexibleSUSY[28] *)
+                   higgs3loopCorrectionAtAtAt -> 1,   (* FlexibleSUSY[29] *)
+                   higgs4loopCorrectionAtAsAsAs -> 1, (* FlexibleSUSY[30] *)
                    parameterOutputScale -> QDR        (* MODSEL[12] *)
                },
                fsSMParameters -> SMParameters,
@@ -102,10 +109,17 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    AtInput -> MS/TB + Xt MS,
                    TanBeta -> TB,
                    LambdaLoopOrder -> 2,
+                   TwoLoopAtAs -> 2,
+                   TwoLoopAbAs -> 2,
+                   TwoLoopAtAb -> 2,
+                   TwoLoopAtauAtau -> 2,
+                   TwoLoopAtAt -> 2,
                    DeltaAlphaS -> sigmaAlphaS,
                    DeltaMTopPole -> sigmaMt,
                    DeltaEFT -> eft,
                    DeltaYt -> yt,
+                   DeltaOS -> 0,
+                   Qmatch -> 0,
                    msq2 -> MS^2 IdentityMatrix[3],
                    msu2 -> {{ MS^2, 0   , 0    },
                             { 0   , MS^2, 0    },
@@ -162,6 +176,13 @@ RunHSSUSYDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    eftMatchingLoopOrderDown -> 0,     (* FlexibleSUSY[21] *)
                    eftHiggsIndex -> 0,                (* FlexibleSUSY[22] *)
                    calculateBSMMasses -> 0,           (* FlexibleSUSY[23] *)
+                   thresholdCorrections -> 123111321, (* FlexibleSUSY[24] *)
+                   higgs3loopCorrectionRenScheme -> 0,(* FlexibleSUSY[25] *)
+                   higgs3loopCorrectionAtAsAs -> 1,   (* FlexibleSUSY[26] *)
+                   higgs3loopCorrectionAbAsAs -> 1,   (* FlexibleSUSY[27] *)
+                   higgs3loopCorrectionAtAtAs -> 1,   (* FlexibleSUSY[28] *)
+                   higgs3loopCorrectionAtAtAt -> 1,   (* FlexibleSUSY[29] *)
+                   higgs4loopCorrectionAtAsAsAs -> 1, (* FlexibleSUSY[30] *)
                    parameterOutputScale -> 0          (* MODSEL[12] *)
                },
                fsSMParameters -> SMParameters,
@@ -176,10 +197,18 @@ RunHSSUSYDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    AtInput -> Mu/TB + Xt Sqrt[MQ3 MU3],
                    TanBeta -> TB,
                    LambdaLoopOrder -> 2,
+                   LambdaLoopOrder -> 2,
+                   TwoLoopAtAs -> 2,
+                   TwoLoopAbAs -> 2,
+                   TwoLoopAtAb -> 2,
+                   TwoLoopAtauAtau -> 2,
+                   TwoLoopAtAt -> 2,
                    DeltaAlphaS -> sigmaAlphaS,
                    DeltaMTopPole -> sigmaMt,
                    DeltaEFT -> 0,
                    DeltaYt -> 0,
+                   DeltaOS -> 0,
+                   Qmatch -> 0,
                    msq2 -> {{ MQ^2, 0   , 0    },
                             { 0   , MQ^2, 0    },
                             { 0   , 0   , MQ3^2 }},
