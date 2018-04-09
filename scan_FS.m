@@ -115,7 +115,6 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           Print["using handle = ", handle];
            spectrum = FSHSSUSYCalculateSpectrum[handle];
            If[spectrum === $Failed,
               FSHSSUSYCloseHandle[handle];
