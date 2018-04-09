@@ -66,11 +66,11 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
     Module[{handle, spectrum, uncerts = {}},
            handle = FSHSSUSYOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -115,12 +115,24 @@ RunHSSUSY[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           If[calcUncerts,
-              uncerts = FSHSSUSYCalculateUncertainties[handle];,
-              spectrum = FSHSSUSYCalculateSpectrum[handle];
-             ];
-           FSHSSUSYCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           Print["using handle = ", handle];
+           spectrum = FSHSSUSYCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSHSSUSYCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = HSSUSY /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSHSSUSYCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSHSSUSYCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = HSSUSY /. uncerts;
+                ];
+              FSHSSUSYCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunHSSUSYDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
@@ -129,11 +141,11 @@ RunHSSUSYDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
     Module[{handle, spectrum},
            handle = FSHSSUSYOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> 2,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -182,7 +194,10 @@ RunHSSUSYDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
            ];
            spectrum = FSHSSUSYCalculateSpectrum[handle];
            FSHSSUSYCloseHandle[handle];
-           spectrum
+           If[spectrum === $Failed,
+              $Failed,
+              HSSUSY /. spectrum
+             ]
           ];
 
 RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ,
@@ -193,11 +208,11 @@ RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Nu
            If[Qm === 0, Qm = Mi];
            handle = FSSplitMSSMTowerOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
                    poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -242,12 +257,23 @@ RunSplitMSSMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Nu
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           If[calcUncerts,
-              uncerts = FSSplitMSSMTowerCalculateUncertainties[handle];,
-              spectrum = FSSplitMSSMTowerCalculateSpectrum[handle];
-             ];
-           FSSplitMSSMTowerCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSSplitMSSMTowerCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSSplitMSSMTowerCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = SplitMSSM /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSSplitMSSMTowerCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSSplitMSSMTowerCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = SplitMSSM /. uncerts;
+                ];
+              FSSplitMSSMTowerCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?NumericQ,
@@ -258,11 +284,11 @@ RunSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Numeric
            If[Qm === 0, Qm = Mi];
            handle = FSSplitMSSMOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
                    poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -307,12 +333,23 @@ RunSplitMSSM[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ, M3_?Numeric
                    mse2 -> MS^2 IdentityMatrix[3]
                }
            ];
-           If[calcUncerts,
-              uncerts = FSSplitMSSMCalculateUncertainties[handle];,
-              spectrum = FSSplitMSSMCalculateSpectrum[handle];
-             ];
-           FSSplitMSSMCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSSplitMSSMCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSSplitMSSMCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = SplitMSSM /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSSplitMSSMCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSSplitMSSMCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = SplitMSSM /. uncerts;
+                ];
+              FSSplitMSSMCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunSplitMSSMDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
@@ -320,11 +357,11 @@ RunSplitMSSMDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
     Module[{handle, spectrum, Mu = Mi, M3 = Mi},
            handle = FSSplitMSSMOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
                    poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> 2,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -375,7 +412,10 @@ RunSplitMSSMDeg[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, Mi_?NumericQ,
            ];
            spectrum = FSSplitMSSMCalculateSpectrum[handle];
            FSSplitMSSMCloseHandle[handle];
-           spectrum
+           If[spectrum === $Failed,
+              $Failed,
+              SplitMSSM /. spectrum
+             ]
           ];
 
 RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
@@ -383,11 +423,11 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
     Module[{handle, spectrum, uncerts = {}},
            handle = FSTHDMIIMSSMBCFullOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -435,12 +475,23 @@ RunTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    mseInput -> MS {1,1,1}
                }
            ];
-           If[calcUncerts,
-              uncerts = FSTHDMIIMSSMBCFullCalculateUncertainties[handle];,
-              spectrum = FSTHDMIIMSSMBCFullCalculateSpectrum[handle];
-             ];
-           FSTHDMIIMSSMBCFullCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSTHDMIIMSSMBCFullCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSTHDMIIMSSMBCFullCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = THDMIIMSSMBCFull /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSTHDMIIMSSMBCFullCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSTHDMIIMSSMBCFullCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = THDMIIMSSMBCFull /. uncerts;
+                ];
+              FSTHDMIIMSSMBCFullCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
@@ -449,11 +500,11 @@ RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
     Module[{handle, spectrum, uncerts = {}},
            handle = FSHGTHDMIIMSSMBCFullOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -502,12 +553,23 @@ RunHGTHDMIIMSSMBCFull[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    mseInput -> MS {1,1,1}
                }
            ];
-           If[calcUncerts,
-              uncerts = FSHGTHDMIIMSSMBCFullCalculateUncertainties[handle];,
-              spectrum = FSHGTHDMIIMSSMBCFullCalculateSpectrum[handle];
-             ];
-           FSHGTHDMIIMSSMBCFullCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSHGTHDMIIMSSMBCFullCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSHGTHDMIIMSSMBCFullCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = HGTHDMIIMSSMBCFull /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSHGTHDMIIMSSMBCFullCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSHGTHDMIIMSSMBCFullCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = HGTHDMIIMSSMBCFull /. uncerts;
+                ];
+              FSHGTHDMIIMSSMBCFullCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunSplitTHDMTHDMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
@@ -518,11 +580,11 @@ RunSplitTHDMTHDMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            If[Qm === 0, Qm = M12];
            handle = FSSplitTHDMTHDMTowerOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -573,12 +635,23 @@ RunSplitTHDMTHDMTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    mseInput -> MS {1,1,1}
                }
            ];
-           If[calcUncerts,
-              uncerts = FSSplitTHDMTHDMTowerCalculateUncertainties[handle];,
-              spectrum = FSSplitTHDMTHDMTowerCalculateSpectrum[handle];
-             ];
-           FSSplitTHDMTHDMTowerCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSSplitTHDMTHDMTowerCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSSplitTHDMTHDMTowerCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = HGTHDMIIMSSMBCFull /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSSplitTHDMTHDMTowerCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSSplitTHDMTHDMTowerCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = HGTHDMIIMSSMBCFull /. uncerts;
+                ];
+              FSSplitTHDMTHDMTowerCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunSplitTHDMSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
@@ -589,11 +662,11 @@ RunSplitTHDMSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
            If[Qm === 0, Qm = MA];
            handle = FSSplitTHDMSplitTowerOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 1, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 2,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -644,12 +717,23 @@ RunSplitTHDMSplitTower[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ, MA_?NumericQ,
                    mseInput -> MS {1,1,1}
                }
            ];
-           If[calcUncerts,
-              uncerts = FSSplitTHDMSplitTowerCalculateUncertainties[handle];,
-              spectrum = FSSplitTHDMSplitTowerCalculateSpectrum[handle];
-             ];
-           FSSplitTHDMSplitTowerCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSSplitTHDMSplitTowerCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSSplitTHDMSplitTowerCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = HGTHDMIIMSSMBCFull /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSSplitTHDMSplitTowerCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSSplitTHDMSplitTowerCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = HGTHDMIIMSSMBCFull /. uncerts;
+                ];
+              FSSplitTHDMSplitTowerCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 RunMSSMEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
@@ -657,11 +741,11 @@ RunMSSMEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
     Module[{handle, spectrum, uncerts = {}},
            handle = FSMSSMEFTHiggsOpenHandle[
                fsSettings -> {
-                   precisionGoal -> 1.*^-4,           (* FlexibleSUSY[0] *)
+                   precisionGoal -> 1.*^-5,           (* FlexibleSUSY[0] *)
                    maxIterations -> 100,              (* FlexibleSUSY[1] *)
                    calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
-                   poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
-                   ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
+                   poleMassLoopOrder -> 3,            (* FlexibleSUSY[4] *)
+                   ewsbLoopOrder -> 3,                (* FlexibleSUSY[5] *)
                    betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
                    thresholdCorrectionsLoopOrder -> ytLoops,(* FlexibleSUSY[7] *)
                    higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
@@ -683,7 +767,6 @@ RunMSSMEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                },
                fsSMParameters -> SMParameters,
                fsModelParameters -> {
-                   SignMu -> 1,
                    MSUSY -> MS,
                    M1Input -> MS,
                    M2Input -> MS,
@@ -707,12 +790,23 @@ RunMSSMEFTHiggs[MS_?NumericQ, TB_?NumericQ, Xt_?NumericQ,
                    me2Input -> MS^2 IdentityMatrix[3]
                }
            ];
-           If[calcUncerts,
-              uncerts = FSMSSMEFTHiggsCalculateUncertainties[handle];,
-              spectrum = FSMSSMEFTHiggsCalculateSpectrum[handle];
-             ];
-           FSMSSMEFTHiggsCloseHandle[handle];
-           If[calcUncerts, uncerts, spectrum]
+           spectrum = FSMSSMEFTHiggsCalculateSpectrum[handle];
+           If[spectrum === $Failed,
+              FSMSSMEFTHiggsCloseHandle[handle];
+              $Failed
+              ,
+              spectrum = MSSMEFTHiggs /. spectrum;
+              If[calcUncerts,
+                 uncerts = FSMSSMEFTHiggsCalculateUncertainties[handle];
+                 If[uncerts === $Failed,
+                    FSMSSMEFTHiggsCloseHandle[handle];
+                    Return[$Failed];
+                   ];
+                 uncerts = MSSMEFTHiggs /. uncerts;
+                ];
+              FSMSSMEFTHiggsCloseHandle[handle];
+              If[calcUncerts, uncerts, spectrum]
+             ]
           ];
 
 GetPar[spec_, par__] :=
