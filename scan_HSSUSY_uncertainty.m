@@ -1,6 +1,22 @@
 Get["models/HSSUSY/HSSUSY_librarylink.m"];
 Get["model_files/HSSUSY/HSSUSY_uncertainty_estimate.m"];
 
+(* To run this script, please first apply the following patch:
+
+diff --git a/model_files/HSSUSY/HSSUSY_uncertainty_estimate.m b/model_files/HSSUSY/HSSUSY_uncertainty_estimate.m
+index bca32d3d..fd127971 100644
+--- a/model_files/HSSUSY/HSSUSY_uncertainty_estimate.m
++++ b/model_files/HSSUSY/HSSUSY_uncertainty_estimate.m
+@@ -174,5 +174,5 @@ CalcHSSUSYDMh[args__] :=
+            DMhSUSY = Max[Abs[Max[varyQmatch] - Mh],
+                          Abs[Min[varyQmatch] - Mh]] +
+                      Abs[Mh - MhYtMSSM];
+-           { Mh0, DMhSM + DMhEFT + DMhSUSY }
++           { Mh0, DMhSM, DMhEFT, DMhSUSY }
+           ];
+
+*)
+
 Mtpole = 173.34;
 AS = 0.1184;
 
